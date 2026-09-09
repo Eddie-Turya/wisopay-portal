@@ -77,6 +77,7 @@ export const api = {
     const q = qs.toString()
     return req<any>('GET', `/payments${q ? `?${q}` : ''}`)
   },
+  supportContent: () => req<any>('GET', '/support-content'),
   apiKeys: () => req<any>('GET', '/api-keys'),
   createEnv: (name: 'live' | 'sandbox') => req<any>('POST', '/api-keys', { name }),
   rotateKey: (envId: string) => req<any>('POST', `/api-keys/${envId}/rotate`),
