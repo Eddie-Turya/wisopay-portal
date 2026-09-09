@@ -78,6 +78,7 @@ export const api = {
     return req<any>('GET', `/payments${q ? `?${q}` : ''}`)
   },
   apiKeys: () => req<any>('GET', '/api-keys'),
+  createEnv: (name: 'live' | 'sandbox') => req<any>('POST', '/api-keys', { name }),
   rotateKey: (envId: string) => req<any>('POST', `/api-keys/${envId}/rotate`),
   webhooks: () => req<any>('GET', '/webhooks'),
   createWebhook: (url: string, events: string[]) => req<any>('POST', '/webhooks', { url, events }),

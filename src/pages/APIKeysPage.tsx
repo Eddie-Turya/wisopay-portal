@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Layout } from '../components/Layout'
 import { api } from '../api'
-import { Key, Copy, Check, RefreshCw, Eye, EyeOff, ShieldCheck, Zap, FlaskConical } from 'lucide-react'
+import { Key, Copy, Check, RefreshCw, Eye, EyeOff, ShieldCheck, Zap, FlaskConical, Plus } from 'lucide-react'
 
 export function APIKeysPage() {
   const [envs, setEnvs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [rotating, setRotating] = useState<string | null>(null)
+  const [creating, setCreating] = useState<string | null>(null)
   const [newKey, setNewKey] = useState<{ envId: string; key: string } | null>(null)
   const [copied, setCopied] = useState(false)
   const [showKey, setShowKey] = useState(false)
@@ -32,6 +33,21 @@ export function APIKeysPage() {
       alert(err.message)
     } finally {
       setRotating(null)
+    }
+  }
+
+  const createEnv = async (name: 'live' | 'sandbox') => {
+    setCreating(name)
+    try {
+      const res = await api.createEnv(name)
+      const newEnv = { id: res.id, name: res.name, enabled: true, api_key_prefix: res.prefix, created_at: res.createdAt, updated_at: res.createdAt }
+      setEnvs(prev => [...prev, newEnv])
+      setNewKey({ envId: res.id, key: res.apiKey })
+      setShowKey(false)
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setCreating(null)
     }
   }
 
@@ -94,7 +110,17 @@ export function APIKeysPage() {
               </div>
               <p className="text-xs text-gray-500 mb-4">Use your live key for real payments. Real money is collected from customers.</p>
               {liveEnvs.length === 0 ? (
-                <div className="bg-gray-50 rounded-xl border border-gray-100 p-8 text-center text-sm text-gray-400">No live environment found</div>
+                <div className="bg-gray-50 rounded-xl border border-gray-100 p-8 text-center">
+                  <p className="text-sm text-gray-400 mb-4">No live API key yet</p>
+                  <button
+                    onClick={() => createEnv('live')}
+                    disabled={creating === 'live'}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
+                  >
+                    <Plus size={15} />
+                    {creating === 'live' ? 'Generating…' : 'Generate Live Key'}
+                  </button>
+                </div>
               ) : liveEnvs.map(env => (
                 <EnvCard key={env.id} env={env} rotating={rotating} newKeyEnvId={newKey?.envId ?? null} onRotate={rotate} />
               ))}
@@ -123,7 +149,17 @@ export function APIKeysPage() {
               </div>
 
               {sandboxEnvs.length === 0 ? (
-                <div className="bg-gray-50 rounded-xl border border-gray-100 p-8 text-center text-sm text-gray-400">No sandbox environment found</div>
+                <div className="bg-gray-50 rounded-xl border border-gray-100 p-8 text-center">
+                  <p className="text-sm text-gray-400 mb-4">No sandbox API key yet</p>
+                  <button
+                    onClick={() => createEnv('sandbox')}
+                    disabled={creating === 'sandbox'}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
+                  >
+                    <Plus size={15} />
+                    {creating === 'sandbox' ? 'Generating…' : 'Generate Sandbox Key'}
+                  </button>
+                </div>
               ) : sandboxEnvs.map(env => (
                 <EnvCard key={env.id} env={env} rotating={rotating} newKeyEnvId={newKey?.envId ?? null} onRotate={rotate} sandbox />
               ))}
