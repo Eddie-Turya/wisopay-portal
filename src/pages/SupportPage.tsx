@@ -33,12 +33,23 @@ const CONTACT_COLORS: Record<string, { bg: string; icon: string }> = {
   BookOpen:      { bg: 'bg-violet-50',  icon: 'text-violet-600' },
 }
 
+const CACHE_KEY = 'wsupport_content'
+
+function loadCached() {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null') } catch { return null }
+}
+
 export function SupportPage() {
-  const [content, setContent] = useState<any>(DEFAULT)
+  const [content, setContent] = useState<any>(loadCached() ?? DEFAULT)
 
   useEffect(() => {
     api.supportContent()
-      .then(data => { if (data) setContent(data) })
+      .then(data => {
+        if (data) {
+          setContent(data)
+          try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)) } catch {}
+        }
+      })
       .catch(() => {})
   }, [])
 
