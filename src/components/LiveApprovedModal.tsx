@@ -11,10 +11,8 @@ export function LiveApprovedModal() {
     const merchantId = (() => {
       try { return JSON.parse(localStorage.getItem('portalMerchant') || '{}')?.id } catch { return null }
     })()
-    const key = `liveApprovedSeen_${merchantId}`
-    if (!localStorage.getItem(key)) {
-      setVisible(true)
-    }
+    const key = `liveApprovedSeen_${merchantId ?? 'unknown'}`
+    try { if (!localStorage.getItem(key)) setVisible(true) } catch { setVisible(true) }
   }, [liveEnabled])
 
   if (!visible) return null
@@ -23,7 +21,7 @@ export function LiveApprovedModal() {
     const merchantId = (() => {
       try { return JSON.parse(localStorage.getItem('portalMerchant') || '{}')?.id } catch { return null }
     })()
-    if (merchantId) localStorage.setItem(`liveApprovedSeen_${merchantId}`, '1')
+    try { localStorage.setItem(`liveApprovedSeen_${merchantId ?? 'unknown'}`, '1') } catch {}
     setVisible(false)
   }
 
