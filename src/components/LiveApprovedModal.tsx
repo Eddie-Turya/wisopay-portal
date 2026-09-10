@@ -3,25 +3,21 @@ import { useEnv } from '../context/EnvContext'
 import { Zap, X, ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export function LiveApprovedModal() {
-  const { liveEnabled, setMode } = useEnv()
+  const { liveEnabled, merchantId, setMode } = useEnv()
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!liveEnabled) return
-    const merchantId = (() => {
-      try { return JSON.parse(localStorage.getItem('portalMerchant') || '{}')?.id } catch { return null }
-    })()
-    const key = `liveApprovedSeen_${merchantId ?? 'unknown'}`
+    if (!liveEnabled || !merchantId) return
+    const key = `liveApprovedSeen_${merchantId}`
     try { if (!localStorage.getItem(key)) setVisible(true) } catch { setVisible(true) }
-  }, [liveEnabled])
+  }, [liveEnabled, merchantId])
 
   if (!visible) return null
 
   const dismiss = () => {
-    const merchantId = (() => {
-      try { return JSON.parse(localStorage.getItem('portalMerchant') || '{}')?.id } catch { return null }
-    })()
-    try { localStorage.setItem(`liveApprovedSeen_${merchantId ?? 'unknown'}`, '1') } catch {}
+    if (merchantId) {
+      try { localStorage.setItem(`liveApprovedSeen_${merchantId}`, '1') } catch {}
+    }
     setVisible(false)
   }
 

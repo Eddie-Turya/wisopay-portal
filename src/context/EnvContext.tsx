@@ -9,13 +9,14 @@ interface EnvCtx {
   setMode: (m: Mode) => void
   isSandbox: boolean
   liveEnabled: boolean
+  merchantId: string | null
   refreshStatus: () => Promise<void>
   statusChecking: boolean
 }
 
 const Ctx = createContext<EnvCtx>({
   mode: 'sandbox', setMode: () => {}, isSandbox: true,
-  liveEnabled: false, refreshStatus: async () => {}, statusChecking: false,
+  liveEnabled: false, merchantId: null, refreshStatus: async () => {}, statusChecking: false,
 })
 
 export function EnvProvider({ children }: { children: ReactNode }) {
@@ -94,7 +95,7 @@ export function EnvProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <Ctx.Provider value={{ mode, setMode, isSandbox: mode === 'sandbox', liveEnabled, refreshStatus, statusChecking }}>
+    <Ctx.Provider value={{ mode, setMode, isSandbox: mode === 'sandbox', liveEnabled, merchantId: merchant?.id ?? null, refreshStatus, statusChecking }}>
       {children}
     </Ctx.Provider>
   )
