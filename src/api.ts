@@ -116,9 +116,10 @@ export const api = {
 
   settlements: () => req<any>('GET', '/settlements'),
 
-  analytics: (params?: { days?: number; envType?: string }) => {
+  analytics: (params?: { days?: number; envType?: string; networkDays?: number }) => {
     const qs = new URLSearchParams()
     if (params?.days) qs.set('days', String(params.days))
+    if (params?.networkDays) qs.set('network_days', String(params.networkDays))
     if (params?.envType) qs.set('envType', params.envType)
     const q = qs.toString()
     return req<any>('GET', `/analytics${q ? `?${q}` : ''}`)

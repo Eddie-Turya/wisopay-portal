@@ -5,6 +5,10 @@ import { Layout } from '../components/Layout'
 import { OnboardingChecklist } from '../components/OnboardingChecklist'
 import { api } from '../api'
 import { useEnv } from '../context/EnvContext'
+import mpesaLogo from '../assets/networks/mpesa.png'
+import airtelLogo from '../assets/networks/airtel.png'
+import yasLogo from '../assets/networks/yas.png'
+import halopesaLogo from '../assets/networks/halopesa.png'
 
 type Range = 7 | 30 | 90
 type Day = { key: string; volume: number; completed: number; total: number }
@@ -51,6 +55,23 @@ const STATUS: Record<string, { label: string; cls: string; bar: string }> = {
   REFUNDED: { label: 'Refunded', cls: 'bg-violet-500/10 text-violet-600 dark:text-violet-300', bar: 'bg-violet-400' },
 }
 const statusOf = (s: string) => STATUS[s] ?? { label: s.charAt(0) + s.slice(1).toLowerCase(), cls: 'bg-p-soft text-p-mute', bar: 'bg-p-mute' }
+
+const NETWORKS: Record<string, { name: string; logo?: string; color: string }> = {
+  mpesa: { name: 'M-Pesa', logo: mpesaLogo, color: '#e60000' },
+  airtel: { name: 'Airtel Money', logo: airtelLogo, color: '#f472b6' },
+  mixx: { name: 'Mixx by Yas', logo: yasLogo, color: '#2563eb' },
+  halopesa: { name: 'HaloPesa', logo: halopesaLogo, color: '#f59e0b' },
+  tpesa: { name: 'T-Pesa', color: '#3b82f6' },
+  other: { name: 'Other numbers', color: '#8d929a' },
+  unknown: { name: 'No phone on record', color: '#c4c7cc' },
+}
+
+function NetworkBadge({ id }: { id: string }) {
+  const n = NETWORKS[id] ?? NETWORKS.other
+  return n.logo
+    ? <img src={n.logo} alt="" className="h-9 w-9 flex-shrink-0 rounded-full border border-p-line bg-white object-contain p-1" />
+    : <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full border border-p-line bg-p-soft text-xs font-semibold text-p-mute">{id === 'tpesa' ? 'T' : '?'}</span>
+}
 
 function Sk({ className = '' }: { className?: string }) {
   return <div className={`animate-pulse rounded-lg bg-p-soft ${className}`} />
@@ -152,7 +173,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     setAnalytics(null)
-    api.analytics({ days: range * 2, envType: mode }).then(setAnalytics).catch(() => setAnalytics({ daily: [], statusBreakdown: [] }))
+    api.analytics({ days: range * 2, networkDays: range, envType: mode }).then(setAnalytics).catch(() => setAnalytics({ daily: [], statusBreakdown: [] }))
   }, [range, mode])
 
   useEffect(() => {
@@ -180,6 +201,8 @@ export function DashboardPage() {
   const loading = analytics === null
   const breakdown: { status: string; count: number }[] = analytics?.statusBreakdown ?? []
   const breakdownTotal = breakdown.reduce((a, b) => a + b.count, 0)
+  const networks: { network: string; total: number; completed: number; volume: number }[] = analytics?.byNetwork ?? []
+  const networkVolume = networks.reduce((a, n) => a + n.volume, 0)
 
   const dismissBanner = () => { localStorage.setItem(bannerKey, '1'); setBannerHidden(true) }
 
@@ -340,6 +363,48 @@ export function DashboardPage() {
             </div>
           </Card>
 
+          <div className="flex flex-col gap-6">
+          <Card className="p-5 sm:p-7">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-lg font-semibold text-p-ink">Volume by network</h2>
+              <span className="text-sm text-p-mute">last {range}d</span>
+            </div>
+            {loading ? <div className="mt-6 space-y-4">{[0, 1, 2].map(i => <Sk key={i} className="h-11 w-full" />)}</div>
+              : networks.length === 0 ? <p className="mt-8 text-center text-sm text-p-mute">No payments in this period.</p>
+              : (
+                <>
+                  <div className="mt-5 flex h-2.5 overflow-hidden rounded-full bg-p-soft">
+                    {networks.filter(n => n.volume > 0).map(n => (
+                      <div key={n.network} className="dash-bar h-full first:rounded-l-full last:rounded-r-full" title={NETWORKS[n.network]?.name}
+                        style={{ width: `${(n.volume / (networkVolume || 1)) * 100}%`, background: (NETWORKS[n.network] ?? NETWORKS.other).color }} />
+                    ))}
+                  </div>
+                  <ul className="mt-5 space-y-3.5">
+                    {networks.map(n => {
+                      const meta = NETWORKS[n.network] ?? NETWORKS.other
+                      const share = networkVolume ? Math.round((n.volume / networkVolume) * 100) : 0
+                      return (
+                        <li key={n.network} className="flex items-center gap-3">
+                          <NetworkBadge id={n.network} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-p-ink">{meta.name}</p>
+                            <p className="text-xs text-p-mute">{n.completed.toLocaleString('en-US')} of {n.total.toLocaleString('en-US')} successful</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium tabular-nums text-p-ink">{tzs(n.volume)}</p>
+                            <p className="text-xs tabular-nums text-p-mute">{share}%</p>
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                  {networks.some(n => n.network === 'unknown') && (
+                    <p className="mt-5 flex gap-2 text-xs text-p-mute"><Info size={13} className="mt-0.5 flex-shrink-0" />Network is worked out from the payer's phone number. Older payments may not have one on record.</p>
+                  )}
+                </>
+              )}
+          </Card>
+
           <Card className="p-5 sm:p-7">
             <h2 className="text-lg font-semibold text-p-ink">Payments by status</h2>
             <p className="mt-1 text-sm text-p-mute">All time · {breakdownTotal.toLocaleString('en-US')} payments</p>
@@ -365,6 +430,7 @@ export function DashboardPage() {
               </div>
             )}
           </Card>
+          </div>
         </div>
       </div>
     </Layout>
