@@ -5,7 +5,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter Tight', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -41,3 +41,35 @@ body {
 @keyframes auth-breathe { 0%,100% { opacity: .85; scale: 1; } 50% { opacity: 1; scale: 1.03; } }
 @keyframes auth-pulse { 0% { box-shadow: 0 0 0 0 rgba(14,185,129,.6); } 70% { box-shadow: 0 0 0 6px rgba(14,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(14,185,129,0); } }
 @media (prefers-reduced-motion: reduce) { .auth-up, .auth-glow, .auth-float, .auth-dot { animation: none; } }
+
+/* ── Portal theme tokens ─────────────────────────── */
+:root {
+  --p-bg: #f7f8fa; --p-surface: #ffffff; --p-soft: #f2f4f6; --p-line: #e8eaee;
+  --p-ink: #16181b; --p-ink2: #3d4248; --p-mute: #6f757c;
+  --p-green-ink: #067a55; --p-green-soft: #e4f8ef;
+}
+html.dark {
+  --p-bg: #0b0c0e; --p-surface: #141619; --p-soft: #1b1e22; --p-line: #25282d;
+  --p-ink: #f2f3f5; --p-ink2: #c9ccd1; --p-mute: #8d929a;
+  --p-green-ink: #4fd9a8; --p-green-soft: rgba(14,185,129,.14);
+}
+.p-fade { animation: auth-up .45s cubic-bezier(.2,.7,.2,1) both; }
+.p-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.p-scroll::-webkit-scrollbar-thumb { background: var(--p-line); border-radius: 8px; }
+
+/* Dark pass for pages still written with light Tailwind utilities */
+html.dark .p-main .bg-white { background-color: var(--p-surface) !important; }
+html.dark .p-main .bg-gray-50, html.dark .p-main .bg-slate-50, html.dark .p-main .bg-gray-100, html.dark .p-main .bg-slate-100 { background-color: var(--p-soft) !important; }
+html.dark .p-main .text-gray-900, html.dark .p-main .text-slate-900, html.dark .p-main .text-gray-800, html.dark .p-main .text-slate-800 { color: var(--p-ink) !important; }
+html.dark .p-main .text-gray-700, html.dark .p-main .text-slate-700, html.dark .p-main .text-gray-600, html.dark .p-main .text-slate-600 { color: var(--p-ink2) !important; }
+html.dark .p-main .text-gray-500, html.dark .p-main .text-slate-500, html.dark .p-main .text-gray-400, html.dark .p-main .text-slate-400 { color: var(--p-mute) !important; }
+html.dark .p-main .border-gray-100, html.dark .p-main .border-gray-200, html.dark .p-main .border-slate-100, html.dark .p-main .border-slate-200,
+html.dark .p-main .divide-gray-100 > * + *, html.dark .p-main .divide-gray-200 > * + * { border-color: var(--p-line) !important; }
+html.dark .p-main input:not([type=checkbox]):not([type=radio]), html.dark .p-main select, html.dark .p-main textarea { background-color: var(--p-soft); color: var(--p-ink); border-color: var(--p-line); }
+html.dark .p-main .hover\:bg-gray-50:hover, html.dark .p-main .hover\:bg-gray-100:hover { background-color: var(--p-soft) !important; }
+html.dark .p-main .shadow-sm { box-shadow: none !important; }
+.dash-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: dash-draw 1.6s cubic-bezier(.4,0,.2,1) .1s forwards; }
+.dash-bar { animation: dash-grow .9s cubic-bezier(.2,.7,.2,1) both; transform-origin: left; }
+@keyframes dash-draw { to { stroke-dashoffset: 0; } }
+@keyframes dash-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .dash-draw { animation: none; stroke-dashoffset: 0; } .dash-bar, .p-fade { animation: none; } }

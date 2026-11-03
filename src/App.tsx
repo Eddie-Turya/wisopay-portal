@@ -6,7 +6,6 @@ import { DashboardPage } from './pages/DashboardPage'
 import { PaymentsPage } from './pages/PaymentsPage'
 import { APIKeysPage } from './pages/APIKeysPage'
 import { WebhooksPage } from './pages/WebhooksPage'
-import { DocsPage } from './pages/DocsPage'
 import { PlaygroundPage } from './pages/PlaygroundPage'
 import { CollectPage } from './pages/CollectPage'
 import { AccountPage } from './pages/AccountPage'
@@ -24,6 +23,7 @@ import { InvoiceFormPage } from './pages/InvoiceFormPage'
 import { InvoiceDetailPage } from './pages/InvoiceDetailPage'
 import BillSplitPage from './pages/BillSplitPage'
 import { EnvProvider } from './context/EnvContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { api } from './api'
 
 function Guard({ children }: { children: React.ReactNode }) {
@@ -32,6 +32,7 @@ function Guard({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <ThemeProvider>
     <EnvProvider>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
@@ -42,7 +43,6 @@ export default function App() {
         <Route path="/payments" element={<Guard><PaymentsPage /></Guard>} />
         <Route path="/api-keys" element={<Guard><APIKeysPage /></Guard>} />
         <Route path="/webhooks" element={<Guard><WebhooksPage /></Guard>} />
-        <Route path="/docs" element={<DocsPage />} />
         <Route path="/collect" element={<Guard><CollectPage /></Guard>} />
         <Route path="/playground" element={<Guard><PlaygroundPage /></Guard>} />
         <Route path="/account" element={<Guard><AccountPage /></Guard>} />
@@ -64,5 +64,6 @@ export default function App() {
       </Routes>
     </BrowserRouter>
     </EnvProvider>
+    </ThemeProvider>
   )
 }
