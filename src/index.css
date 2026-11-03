@@ -26,3 +26,18 @@ body {
     color: #111;
   }
 }
+
+/* Auth screens (login / sign-up) — match wisopay.io */
+.auth { font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+.auth-up { animation: auth-up .6s cubic-bezier(.2,.7,.2,1) both; }
+.auth-glow {
+  background: radial-gradient(closest-side, #06100c 82%, rgba(14,185,129,.9) 88%, rgba(90,220,170,.28) 94%, transparent 100%);
+  filter: blur(8px); animation: auth-breathe 9s ease-in-out infinite;
+}
+.auth-float { animation: auth-up .8s cubic-bezier(.2,.7,.2,1) .25s both, auth-bob 7s ease-in-out 1s infinite; }
+.auth-dot { animation: auth-pulse 2s infinite; }
+@keyframes auth-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes auth-bob { 0%,100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes auth-breathe { 0%,100% { opacity: .85; scale: 1; } 50% { opacity: 1; scale: 1.03; } }
+@keyframes auth-pulse { 0% { box-shadow: 0 0 0 0 rgba(14,185,129,.6); } 70% { box-shadow: 0 0 0 6px rgba(14,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(14,185,129,0); } }
+@media (prefers-reduced-motion: reduce) { .auth-up, .auth-glow, .auth-float, .auth-dot { animation: none; } }
