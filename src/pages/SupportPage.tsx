@@ -8,7 +8,7 @@ const ICON_MAP: Record<string, any> = { Mail, MessageSquare, BookOpen, Zap, File
 const DEFAULT: any = {
   contacts: [
     { id: '1', icon: 'Mail',          label: 'Email Support', desc: 'support@wisopay.io', action: 'mailto:support@wisopay.io' },
-    { id: '2', icon: 'MessageSquare', label: 'WhatsApp',      desc: '+255 000 000 000',  action: '' },
+    { id: '2', icon: 'MessageSquare', label: 'WhatsApp',      desc: '+255 744 447 401',  action: 'https://wa.me/255744447401' },
     { id: '3', icon: 'BookOpen',      label: 'API Docs',      desc: 'Full reference',    action: '/docs' },
   ],
   resources: [
