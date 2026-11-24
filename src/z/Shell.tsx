@@ -56,6 +56,7 @@ const NAV = [
       { href: "/portal/payouts", label: tr("Payouts"), icon: ArrowUpFromLine },
       { href: "/portal/balances", label: tr("Balances"), icon: Wallet },
       { href: "/portal/settlements", label: tr("Settlements"), icon: Landmark },
+      { href: "/portal/statements", label: tr("Statements"), icon: FileText },
     ],
   },
   {

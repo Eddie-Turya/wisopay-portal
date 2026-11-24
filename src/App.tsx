@@ -27,6 +27,7 @@ import { Payouts } from './z/views/Payouts'
 import { Analytics, Balances, Settlements } from './z/views/Money'
 import { Customers } from './z/views/GetPaid'
 import { Developers, SettingsView } from './z/views/Account'
+import { Statements } from './z/views/Statements'
 
 function Signed() {
   return <Shell><Outlet /></Shell>
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/disbursement" element={<Navigate to="/payouts" replace />} />
           <Route path="/balances" element={<Balances />} />
           <Route path="/settlements" element={<Settlements />} />
+          <Route path="/statements" element={<Statements />} />
           <Route path="/collect" element={<CollectPage />} />
           <Route path="/payment-links" element={<PaymentLinksPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />

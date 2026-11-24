@@ -269,6 +269,9 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
       throw soon('This payout account action')
     }
 
+    case 'statements':
+      return R(await wiso('GET', id ? `/statements/${id}` : '/statements'))
+
     case 'withdrawal-terms': {
       const s = await wiso('GET', '/settlements').catch(() => ({}))
       return R({ fee: Number(s.withdrawalFee ?? 1500), min: Number(s.minWithdrawal ?? 10000) })
@@ -374,6 +377,22 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
       throw soon('Editing the business profile')
   }
   throw soon('This feature')
+}
+
+/** Downloads a file from the WisoPay portal API (e.g. /statements/2026-11.pdf) and saves it. */
+export async function downloadPortalFile(path: string, filename: string) {
+  const s = getSession()
+  const r = await fetch(`${BASE}${path}`, { headers: s ? { Authorization: `Bearer ${s.accessToken}` } : {} })
+  if (!r.ok) {
+    const j = await r.json().catch(() => null)
+    throw new ApiError(r.status, 'HTTP', j?.error ?? `Download failed (${r.status})`)
+  }
+  const url = URL.createObjectURL(await r.blob())
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 /** Reads a File as base64 (no data: prefix) for KYC uploads. */
