@@ -31,7 +31,7 @@ export type Me = {
 export type ApiNetwork = { code: string; name: string; country: string; currency: string; decimals: number; status: string };
 export type Kyc = { status: string; reason?: string | null; submittedAt?: string; decidedAt?: string | null; documents?: { type: string; filename: string; size: number }[]; merchantStatus: string };
 export type BalanceRow = { key: string; code: string; country: string; flag: string; currency: string; name: string; providers: ProviderId[]; available: number; pending: number; availableExact: string };
-export type Note = { id: string; title: string; body: string; time: string; unread: boolean };
+export type Note = { id: string; title: string; body: string; time: string; unread: boolean; link?: string | null };
 
 /* ---------- Mapping to the portal's view shapes ---------- */
 
@@ -167,7 +167,7 @@ export function LiveProvider({ wantLive, children }: { wantLive: boolean; childr
         allTx("PAYOUT", env),
         api<{ data: { currency: string; available: string; reserved: string }[] }>("/dashboard/balances", { env }),
         canMoney ? api<{ data: { id: string; currency: string; amount: string; destination: string; status: string; createdAt: string; reference?: string | null; note?: string | null; adminNote?: string | null; fee?: number; payout?: number }[] }>("/dashboard/settlements", { env }) : Promise.resolve({ data: [] }),
-        api<{ data: { id: string; title: string; body: string; read: boolean; createdAt: string }[] }>("/dashboard/notifications", { env }),
+        api<{ data: { id: string; title: string; body: string; read: boolean; createdAt: string; link?: string | null }[] }>("/dashboard/notifications", { env }),
         api<Kyc>("/dashboard/kyc", { env }),
       ]);
       setRaw({ deposits, payouts, balances: balances.data, settlements: settlements.data });
@@ -179,7 +179,7 @@ export function LiveProvider({ wantLive, children }: { wantLive: boolean; childr
         me,
         kyc,
         networks: networks.data,
-        notifications: notes.data.map((n) => ({ id: n.id, title: n.title, body: n.body, time: ago(n.createdAt), unread: !n.read })),
+        notifications: notes.data.map((n) => ({ id: n.id, title: n.title, body: n.body, time: ago(n.createdAt), unread: !n.read, link: n.link ?? null })),
       }));
     } catch (e) {
       console.error("Portal data load failed", e);

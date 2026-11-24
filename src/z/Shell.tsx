@@ -323,9 +323,17 @@ function Notifications() {
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside(ref, () => setOpen(false));
   const unread = read ? 0 : notifications.filter((n) => n.unread).length;
+  const router = useRouter();
   const markAll = async () => {
     setRead(true);
-    await Promise.all(notifications.filter((n) => n.unread).map((n) => api(`/dashboard/notifications/${n.id}/read`, { body: {} }).catch(() => {})));
+    await api("/dashboard/notifications/read-all", { body: {} }).catch(() => {});
+    await reload();
+    setRead(false);
+  };
+  const openNote = async (n: { id: string; unread: boolean; link?: string | null }) => {
+    setOpen(false);
+    if (n.unread) await api(`/dashboard/notifications/${n.id}/read`, { body: {} }).catch(() => {});
+    if (n.link) router.push(`/portal${n.link === "/" ? "" : n.link}`);
     void reload();
   };
   return (
@@ -346,13 +354,15 @@ function Notifications() {
             <ul className="max-h-80 overflow-y-auto border-t border-p-line">
               {notifications.length === 0 && <li className="px-4 py-8 text-center text-xs text-p-muted">{tr("You’re all caught up.")}</li>}
               {notifications.map((n) => (
-                <li key={n.id} className="flex gap-3 border-b border-p-line px-4 py-3 last:border-0">
-                  <span className={cx("mt-1.5 h-2 w-2 shrink-0 rounded-full", n.unread && !read ? "bg-p-accent" : "bg-transparent")} />
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-medium">{n.title}</p>
-                    <p className="truncate text-xs text-p-muted">{n.body}</p>
-                    <p className="mt-0.5 text-[11px] text-p-faint">{n.time}</p>
-                  </div>
+                <li key={n.id} className="border-b border-p-line last:border-0">
+                  <button onClick={() => void openNote(n)} className="flex w-full gap-3 px-4 py-3 text-left transition hover:bg-p-panel2">
+                    <span className={cx("mt-1.5 h-2 w-2 shrink-0 rounded-full", n.unread && !read ? "bg-p-accent" : "bg-transparent")} />
+                    <span className="min-w-0">
+                      <span className={cx("block text-[13px]", n.unread && !read ? "font-semibold" : "font-medium")}>{n.title}</span>
+                      <span className="line-clamp-2 block text-xs text-p-muted">{n.body}</span>
+                      <span className="mt-0.5 block text-[11px] text-p-faint">{n.time}</span>
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>

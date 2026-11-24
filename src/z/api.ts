@@ -245,8 +245,11 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
       })
     }
 
-    case 'notifications':
-      return R(method === 'GET' ? { data: [] } : undefined)
+    case 'notifications': {
+      if (id === 'read-all') return R(await wiso('POST', '/notifications/read-all', {}))
+      if (id && sub === 'read') return R(await wiso('POST', `/notifications/${id}/read`, {}))
+      return R(await wiso('GET', '/notifications'))
+    }
 
     case 'kyc': {
       if (method === 'GET') return R(await kyc())
