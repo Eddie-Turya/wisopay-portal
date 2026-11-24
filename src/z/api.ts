@@ -134,7 +134,9 @@ async function me() {
 
 async function kyc() {
   const r = await wiso('GET', '/kyc').catch(() => ({ documents: [] }))
-  const docs: any[] = r.documents ?? []
+  // WisoPay returns { documents: { IDENTITY: {...}, BUSINESS_REG: {...} } }; accept a list too
+  const raw = r.documents ?? []
+  const docs: any[] = Array.isArray(raw) ? raw : Object.entries(raw).map(([type, d]: [string, any]) => ({ document_type: type, ...d }))
   const any = (s: string) => docs.some(d => String(d.status).toUpperCase() === s)
   const status = !docs.length ? 'NOT_SUBMITTED' : any('REJECTED') ? 'CHANGES_REQUESTED' : docs.every(d => String(d.status).toUpperCase() === 'APPROVED') ? 'APPROVED' : 'SUBMITTED'
   const times = (k: string) => docs.map(d => d[k]).filter(Boolean).sort()

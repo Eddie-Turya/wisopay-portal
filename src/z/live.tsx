@@ -182,7 +182,8 @@ export function LiveProvider({ wantLive, children }: { wantLive: boolean; childr
         notifications: notes.data.map((n) => ({ id: n.id, title: n.title, body: n.body, time: ago(n.createdAt), unread: !n.read })),
       }));
     } catch (e) {
-      setState((s) => ({ ...s, ready: true, error: e instanceof ApiError ? e.message : "Couldn’t load your data" }));
+      console.error("Portal data load failed", e);
+      setState((s) => ({ ...s, ready: true, error: e instanceof ApiError ? e.message : `Couldn’t load your data (${e instanceof Error ? e.message : String(e)})` }));
     }
   }, [wantLive]);
 
