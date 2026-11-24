@@ -92,8 +92,8 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <div className="space-y-1.5">
       <div className="flex items-baseline justify-between">
-        <label className="text-sm font-semibold text-gray-700">{label}</label>
-        {hint && <span className="text-xs text-gray-400">{hint}</span>}
+        <label className="text-sm font-semibold text-p-ink2">{label}</label>
+        {hint && <span className="text-xs text-p-faint">{hint}</span>}
       </div>
       {children}
     </div>
@@ -101,7 +101,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 function inputCls(accent: string) {
-  return `w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white placeholder:text-gray-300 focus:outline-none focus:ring-2 ${accent} transition-all`
+  return `w-full px-4 py-3 text-sm border border-p-line rounded-xl bg-p-panel placeholder:text-p-faint focus:outline-none focus:ring-2 ${accent} transition-all`
 }
 
 // ── Accent types ──────────────────────────────────────────────────────────────
@@ -122,17 +122,17 @@ function PushForm({ hook, accent, listId, buttonLabel, pushType }: {
   if (state === 'success') {
     return (
       <div className="flex flex-col items-center text-center py-10 gap-6">
-        <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center">
-          <CheckCircle2 size={38} className="text-emerald-500" />
+        <div className="w-20 h-20 rounded-full bg-p-good/10 flex items-center justify-center">
+          <CheckCircle2 size={38} className="text-p-good" />
         </div>
         <div className="space-y-1">
-          <p className="text-3xl font-bold text-gray-900 tabular-nums tracking-tight">{formatTZS(successAmount)}</p>
-          <p className="text-sm text-gray-400">Received from <span className="font-semibold text-gray-600">{phone}</span></p>
+          <p className="text-3xl font-bold text-p-fg tabular-nums tracking-tight">{formatTZS(successAmount)}</p>
+          <p className="text-sm text-p-faint">Received from <span className="font-semibold text-p-ink2">{phone}</span></p>
         </div>
 
         {!alreadySaved && !saved ? (
-          <div className="w-full max-w-sm bg-gray-50 rounded-2xl p-5 text-left border border-gray-100">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <div className="w-full max-w-sm bg-p-panel2 rounded-2xl p-5 text-left border border-p-line">
+            <p className="text-xs font-semibold text-p-faint uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <BookUser size={11} /> Save customer
             </p>
             <div className="flex gap-2">
@@ -142,7 +142,7 @@ function PushForm({ hook, accent, listId, buttonLabel, pushType }: {
                 onChange={e => setSaveName(e.target.value)}
                 placeholder="Customer name"
                 onKeyDown={e => e.key === 'Enter' && saveContact()}
-                className="flex-1 px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 placeholder:text-gray-300 transition-all"
+                className="flex-1 px-3.5 py-2.5 text-sm border border-p-line rounded-xl bg-p-panel focus:outline-none focus:ring-2 focus:ring-gray-300 placeholder:text-p-faint transition-all"
               />
               <button
                 onClick={saveContact}
@@ -154,16 +154,16 @@ function PushForm({ hook, accent, listId, buttonLabel, pushType }: {
             </div>
           </div>
         ) : saved ? (
-          <p className="text-sm font-medium text-emerald-600 flex items-center gap-1.5">
+          <p className="text-sm font-medium text-p-good flex items-center gap-1.5">
             <Check size={15} /> Saved to contacts
           </p>
         ) : (
-          <p className="text-sm text-gray-400 flex items-center gap-1.5">
+          <p className="text-sm text-p-faint flex items-center gap-1.5">
             <BookUser size={13} /> {matchedContact?.name}
           </p>
         )}
 
-        <button onClick={reset} className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors group">
+        <button onClick={reset} className="flex items-center gap-2 text-sm font-semibold text-p-muted hover:text-p-fg transition-colors group">
           New collection <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
@@ -177,16 +177,16 @@ function PushForm({ hook, accent, listId, buttonLabel, pushType }: {
           <Loader2 size={32} className={`${accent.spinnerText} animate-spin`} />
         </div>
         <div className="space-y-1">
-          <p className="text-base font-bold text-gray-900">Waiting for payment</p>
-          <p className="text-sm text-gray-400">
+          <p className="text-base font-bold text-p-fg">Waiting for payment</p>
+          <p className="text-sm text-p-faint">
             {pushType === 'pesa' ? 'Push notification sent to' : 'USSD prompt sent to'}{' '}
-            <span className="font-semibold text-gray-700">{phone}</span>
+            <span className="font-semibold text-p-ink2">{phone}</span>
           </p>
         </div>
-        <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
+        <p className="text-xs text-p-faint max-w-xs leading-relaxed">
           Ask the customer to approve the {pushType === 'pesa' ? 'in-app notification' : 'USSD prompt'} on their phone
         </p>
-        <button onClick={reset} className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors">Cancel</button>
+        <button onClick={reset} className="text-xs text-p-faint hover:text-p-fg underline underline-offset-2 transition-colors">Cancel</button>
       </div>
     )
   }
@@ -194,12 +194,12 @@ function PushForm({ hook, accent, listId, buttonLabel, pushType }: {
   if (state === 'failed') {
     return (
       <div className="flex flex-col items-center text-center py-10 gap-5">
-        <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full bg-p-bad/10 flex items-center justify-center">
           <XCircle size={34} className="text-red-400" />
         </div>
         <div className="space-y-1">
-          <p className="text-base font-bold text-gray-900">Payment failed</p>
-          {error && <p className="text-sm text-red-500 max-w-xs">{error}</p>}
+          <p className="text-base font-bold text-p-fg">Payment failed</p>
+          {error && <p className="text-sm text-p-bad max-w-xs">{error}</p>}
         </div>
         <button onClick={reset} className={`px-7 py-3 text-sm font-bold text-white rounded-xl transition-all shadow-sm ${accent.btn}`}>
           Try again
@@ -211,7 +211,7 @@ function PushForm({ hook, accent, listId, buttonLabel, pushType }: {
   return (
     <div className="space-y-5">
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">{error}</div>
+        <div className="text-sm text-p-bad bg-p-bad/10 border border-p-bad/25 rounded-xl px-4 py-3">{error}</div>
       )}
 
       <div className="grid grid-cols-2 gap-4">
@@ -232,7 +232,7 @@ function PushForm({ hook, accent, listId, buttonLabel, pushType }: {
                 </datalist>
               )}
               {matchedContact && (
-                <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+                <p className="text-xs text-p-faint mt-1.5 flex items-center gap-1">
                   <BookUser size={10} /> {matchedContact.name}
                 </p>
               )}
@@ -309,14 +309,14 @@ function LinkForm({ mode }: { mode: 'live' | 'sandbox' }) {
   if (result) {
     return (
       <div className="space-y-5">
-        <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-4">
-          <CheckCircle2 size={18} className="text-emerald-500 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 bg-p-good/10 border border-p-good/25 rounded-2xl px-5 py-4">
+          <CheckCircle2 size={18} className="text-p-good mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-sm font-bold text-emerald-800">
+            <p className="text-sm font-bold text-p-good">
               {formatTZS(result.amount_minor)}{result.description ? ` · ${result.description}` : ''}
             </p>
             {result.expires_at && (
-              <p className="text-xs text-emerald-600 flex items-center gap-1 mt-0.5">
+              <p className="text-xs text-p-good flex items-center gap-1 mt-0.5">
                 <Clock size={10} /> Expires {new Date(result.expires_at).toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short' })}
               </p>
             )}
@@ -329,14 +329,14 @@ function LinkForm({ mode }: { mode: 'live' | 'sandbox' }) {
               readOnly
               value={result.url}
               onClick={e => (e.target as HTMLInputElement).select()}
-              className="flex-1 min-w-0 px-4 py-3 text-xs font-mono border border-gray-200 rounded-xl bg-gray-50 text-gray-600 select-all"
+              className="flex-1 min-w-0 px-4 py-3 text-xs font-mono border border-p-line rounded-xl bg-p-panel2 text-p-ink2 select-all"
             />
             <button
               onClick={copy}
               className={`flex items-center gap-1.5 px-5 py-3 text-sm font-bold rounded-xl border transition-all flex-shrink-0 ${
                 copied
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                  : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                  ? 'bg-p-good/10 border-p-good/25 text-p-good'
+                  : 'bg-p-panel border-p-line text-p-ink2 hover:bg-p-panel2 hover:border-p-line'
               }`}
             >
               {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
@@ -346,7 +346,7 @@ function LinkForm({ mode }: { mode: 'live' | 'sandbox' }) {
 
         <button
           onClick={() => { setResult(null); setAmount(''); setDesc(''); setExpires('24') }}
-          className="w-full py-3.5 text-sm font-bold text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors flex items-center justify-center gap-2 group"
+          className="w-full py-3.5 text-sm font-bold text-p-info bg-p-info/10 rounded-xl hover:bg-p-info/10 transition-colors flex items-center justify-center gap-2 group"
         >
           Generate another <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
         </button>
@@ -356,7 +356,7 @@ function LinkForm({ mode }: { mode: 'live' | 'sandbox' }) {
 
   return (
     <div className="space-y-5">
-      {error && <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">{error}</div>}
+      {error && <div className="text-sm text-p-bad bg-p-bad/10 border border-p-bad/25 rounded-xl px-4 py-3">{error}</div>}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2 sm:col-span-1">
@@ -368,7 +368,7 @@ function LinkForm({ mode }: { mode: 'live' | 'sandbox' }) {
         <div className="col-span-2 sm:col-span-1">
           <Field label="Expires after">
             <select value={expires} onChange={e => setExpires(e.target.value)}
-              className={`${inputCls(blueRing)} text-gray-700 bg-white`}>
+              className={`${inputCls(blueRing)} text-p-ink2 bg-p-panel`}>
               <option value="1">1 hour</option>
               <option value="6">6 hours</option>
               <option value="24">24 hours</option>
@@ -426,10 +426,10 @@ const METHODS: { id: Method; label: string; sublabel: string; icon: React.ReactN
 
 const ACCENTS: Record<Method, AccentSet> = {
   ussd: {
-    ring: 'focus:ring-emerald-500/20 focus:border-emerald-400',
+    ring: 'focus:ring-emerald-500/20 focus:border-p-fg/40',
     btn: 'from-emerald-500 to-teal-600',
-    pulseBg: 'bg-emerald-50',
-    spinnerText: 'text-emerald-600',
+    pulseBg: 'bg-p-good/10',
+    spinnerText: 'text-p-good',
     gradient: 'from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700',
   },
   pesa: {
@@ -442,8 +442,8 @@ const ACCENTS: Record<Method, AccentSet> = {
   link: {
     ring: 'focus:ring-blue-500/20 focus:border-blue-400',
     btn: 'from-blue-500 to-indigo-600',
-    pulseBg: 'bg-blue-50',
-    spinnerText: 'text-blue-600',
+    pulseBg: 'bg-p-info/10',
+    spinnerText: 'text-p-info',
     gradient: 'from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700',
   },
 }
@@ -463,8 +463,8 @@ export function CollectPage() {
 
         {/* Page header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Collect Payment</h1>
-          <p className="text-sm text-gray-400 mt-1">Choose how you want to request money from a customer</p>
+          <h1 className="text-2xl font-bold text-p-fg tracking-tight">Collect Payment</h1>
+          <p className="text-sm text-p-faint mt-1">Choose how you want to request money from a customer</p>
         </div>
 
         {/* Method selector */}
@@ -477,8 +477,8 @@ export function CollectPage() {
                 onClick={() => setMethod(m.id)}
                 className={`relative flex flex-col items-start gap-2.5 p-4 rounded-2xl border-2 text-left transition-all duration-150 ${
                   isActive
-                    ? 'border-transparent bg-white shadow-lg ring-1 ring-black/5'
-                    : 'border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm'
+                    ? 'border-transparent bg-p-panel shadow-lg ring-1 ring-black/5'
+                    : 'border-p-line bg-p-panel hover:border-p-line hover:shadow-sm'
                 }`}
               >
                 {isActive && (
@@ -488,16 +488,16 @@ export function CollectPage() {
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                   isActive
                     ? `bg-gradient-to-br ${m.gradient} text-white shadow-sm`
-                    : 'bg-gray-100 text-gray-500'
+                    : 'bg-p-panel2 text-p-muted'
                 }`}>
                   {m.icon}
                 </div>
 
                 <div className="min-w-0 w-full">
-                  <p className={`text-xs font-bold leading-tight ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
+                  <p className={`text-xs font-bold leading-tight ${isActive ? 'text-p-fg' : 'text-p-ink2'}`}>
                     {m.label}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-tight hidden sm:block">{m.sublabel}</p>
+                  <p className="text-xs text-p-faint mt-0.5 leading-tight hidden sm:block">{m.sublabel}</p>
                 </div>
               </button>
             )
@@ -505,16 +505,16 @@ export function CollectPage() {
         </div>
 
         {/* Main card */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-p-panel rounded-2xl border border-p-line shadow-sm overflow-hidden">
           {/* Card header */}
-          <div className="px-7 pt-7 pb-6 border-b border-gray-50">
+          <div className="px-7 pt-7 pb-6 border-b border-p-line">
             <div className="flex items-start gap-4">
               <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 text-white shadow-sm bg-gradient-to-br ${active.gradient}`}>
                 {active.icon}
               </div>
               <div>
-                <h2 className="text-base font-bold text-gray-900">{active.label}</h2>
-                <p className="text-sm text-gray-400 mt-0.5 leading-relaxed">{active.desc}</p>
+                <h2 className="text-base font-bold text-p-fg">{active.label}</h2>
+                <p className="text-sm text-p-faint mt-0.5 leading-relaxed">{active.desc}</p>
               </div>
             </div>
           </div>
@@ -534,7 +534,7 @@ export function CollectPage() {
         </div>
 
         {/* Footer tip */}
-        <p className="text-xs text-gray-400 mt-4 text-center">
+        <p className="text-xs text-p-faint mt-4 text-center">
           {method === 'ussd' && 'Works with M-Pesa, Tigo Pesa, Airtel Money, Halopesa and more'}
           {method === 'pesa' && 'Customer must have the Selcom Pesa app installed and logged in'}
           {method === 'link' && 'Links expire after the selected duration — generate a new one if needed'}

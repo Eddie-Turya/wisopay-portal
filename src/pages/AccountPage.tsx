@@ -9,7 +9,7 @@ import {
 
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`bg-white rounded-xl border border-gray-100 shadow-sm p-5 ${className}`}>
+    <div className={`bg-p-panel rounded-xl border border-p-line shadow-sm p-5 ${className}`}>
       {children}
     </div>
   )
@@ -19,8 +19,8 @@ function CardHeader({ icon: Icon, title, badge }: { icon: any; title: string; ba
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
-        <Icon size={16} className="text-gray-400" />
-        <h2 className="text-sm font-bold text-gray-900">{title}</h2>
+        <Icon size={16} className="text-p-faint" />
+        <h2 className="text-sm font-bold text-p-fg">{title}</h2>
       </div>
       {badge}
     </div>
@@ -194,15 +194,15 @@ export function AccountPage() {
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4">
-        <h1 className="text-base font-bold text-gray-900">Account</h1>
-        <p className="text-xs text-gray-400 hidden sm:block">Manage your profile, verification, and security settings</p>
+      <div className="px-4 sm:px-6 pt-6 sm:pt-8 pb-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-p-fg">Account</h1>
+        <p className="text-xs text-p-faint hidden sm:block">Manage your profile, verification, and security settings</p>
       </div>
 
       <div className="p-4 sm:p-6">
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {[1,2,3,4].map(i => <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 animate-pulse h-40" />)}
+            {[1,2,3,4].map(i => <div key={i} className="bg-p-panel rounded-xl border border-p-line p-6 animate-pulse h-40" />)}
           </div>
         ) : (
           <>
@@ -216,17 +216,17 @@ export function AccountPage() {
                 <CardHeader icon={Building2} title="Business" />
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Merchant Name</p>
-                    <p className="text-sm text-gray-900 font-medium">{profile?.merchant?.name || '—'}</p>
+                    <p className="text-xs font-semibold text-p-muted uppercase tracking-wide mb-1">Merchant Name</p>
+                    <p className="text-sm text-p-fg font-medium">{profile?.merchant?.name || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Slug</p>
-                    <p className="text-sm font-mono text-gray-600">{profile?.merchant?.slug || '—'}</p>
+                    <p className="text-xs font-semibold text-p-muted uppercase tracking-wide mb-1">Slug</p>
+                    <p className="text-sm font-mono text-p-ink2">{profile?.merchant?.slug || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Status</p>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <p className="text-xs font-semibold text-p-muted uppercase tracking-wide mb-1">Status</p>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-p-good/10 text-p-good">
+                      <span className="w-1.5 h-1.5 rounded-full bg-p-accent" />
                       {profile?.merchant?.status || 'active'}
                     </span>
                   </div>
@@ -238,15 +238,15 @@ export function AccountPage() {
                 <CardHeader icon={Percent} title="Collection fee" />
                 {feeSettings ? (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                    <div className="flex items-center justify-between bg-p-panel2 rounded-lg px-4 py-3">
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Platform rate</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-0.5">{feeSettings.platform_rate_percent}%</p>
+                        <p className="text-xs font-semibold text-p-muted uppercase tracking-wide">Platform rate</p>
+                        <p className="text-2xl font-bold text-p-fg mt-0.5">{feeSettings.platform_rate_percent}%</p>
                       </div>
-                      <p className="text-xs text-gray-400 max-w-[180px] text-right">Set by the platform. Applied to every payment.</p>
+                      <p className="text-xs text-p-faint max-w-[180px] text-right">Set by the platform. Applied to every payment.</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Who pays the fee?</p>
+                      <p className="text-xs font-semibold text-p-ink2 uppercase tracking-wide mb-2">Who pays the fee?</p>
                       <div className="grid grid-cols-2 gap-2">
                         {(['merchant', 'customer'] as const).map(option => {
                           const active = (selectedBearer ?? feeSettings.fee_bearer) === option
@@ -255,13 +255,13 @@ export function AccountPage() {
                               key={option}
                               onClick={() => { setSelectedBearer(option); setFeeMsg(null) }}
                               className={`rounded-lg border px-3 py-3 text-left transition ${
-                                active ? 'bg-emerald-50 border-emerald-400' : 'border-gray-200 hover:bg-gray-50'
+                                active ? 'bg-p-good/10 border-p-accent' : 'border-p-line hover:bg-p-panel2'
                               }`}
                             >
-                              <p className={`text-xs font-bold capitalize ${active ? 'text-emerald-700' : 'text-gray-700'}`}>
+                              <p className={`text-xs font-bold capitalize ${active ? 'text-p-good' : 'text-p-ink2'}`}>
                                 {option === 'merchant' ? 'My business' : 'Customer'}
                               </p>
-                              <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">
+                              <p className="text-[11px] text-p-faint mt-0.5 leading-snug">
                                 {option === 'merchant'
                                   ? 'Fee deducted from payout. Customer pays stated amount.'
                                   : 'Fee added to customer charge. You receive full amount.'}
@@ -287,21 +287,21 @@ export function AccountPage() {
                             }
                           }}
                           disabled={feeUpdating}
-                          className="mt-3 w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold py-2 rounded-lg transition"
+                          className="mt-3 w-full bg-p-accent hover:brightness-95 disabled:opacity-50 text-p-accent-ink text-xs font-semibold py-2 rounded-lg transition"
                         >
                           {feeUpdating ? 'Saving…' : 'Save preference'}
                         </button>
                       )}
                     </div>
                     {feeMsg && (
-                      <p className={`text-xs font-medium ${feeMsg.ok ? 'text-emerald-600' : 'text-red-500'}`}>{feeMsg.text}</p>
+                      <p className={`text-xs font-medium ${feeMsg.ok ? 'text-p-good' : 'text-p-bad'}`}>{feeMsg.text}</p>
                     )}
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-[11px] text-p-faint">
                       Example at {feeSettings.platform_rate_percent}%: on 10,000 TZS the fee is {Math.ceil(10000 * feeSettings.platform_rate_percent / 100).toLocaleString()} TZS
                     </p>
                   </div>
                 ) : (
-                  <div className="h-16 bg-gray-50 rounded-lg animate-pulse" />
+                  <div className="h-16 bg-p-panel2 rounded-lg animate-pulse" />
                 )}
               </Card>
 
@@ -310,29 +310,29 @@ export function AccountPage() {
                 <CardHeader icon={User} title="Profile" />
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Email</p>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
-                      <Mail size={14} className="text-gray-400" />
-                      <p className="text-sm text-gray-600">{profile?.user?.email || '—'}</p>
+                    <p className="text-xs font-semibold text-p-muted uppercase tracking-wide mb-1">Email</p>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-p-panel2 rounded-lg border border-p-line">
+                      <Mail size={14} className="text-p-faint" />
+                      <p className="text-sm text-p-ink2">{profile?.user?.email || '—'}</p>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Display Name</label>
+                    <label className="block text-xs font-semibold text-p-muted uppercase tracking-wide mb-1.5">Display Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={e => setName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-400"
+                      className="w-full px-3 py-2 border border-p-line rounded-lg text-sm focus:outline-none focus:border-p-fg/40"
                       placeholder="Your name"
                     />
                   </div>
                   {saveMsg && (
-                    <div className={`flex items-center gap-2 text-xs font-medium ${saveMsg.ok ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <div className={`flex items-center gap-2 text-xs font-medium ${saveMsg.ok ? 'text-p-good' : 'text-p-bad'}`}>
                       {saveMsg.ok ? <Check size={14} /> : <AlertCircle size={14} />} {saveMsg.text}
                     </div>
                   )}
                   <button onClick={saveName} disabled={saving}
-                    className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                    className="bg-p-accent hover:brightness-95 disabled:opacity-50 text-p-accent-ink px-4 py-2 rounded-lg text-sm font-semibold transition">
                     {saving ? 'Saving…' : 'Save Changes'}
                   </button>
                 </div>
@@ -344,13 +344,13 @@ export function AccountPage() {
                 <div className="space-y-3">
                   {[['Current password', currentPw, setCurrentPw], ['New password', newPw, setNewPw], ['Confirm new password', confirmPw, setConfirmPw]] .map(([label, val, set]: any, i) => (
                     <div key={i}>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
+                      <label className="block text-xs font-semibold text-p-muted uppercase tracking-wide mb-1.5">{label}</label>
                       <input type="password" value={val} onChange={e => set(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-400" />
+                        className="w-full px-3 py-2 border border-p-line rounded-lg text-sm focus:outline-none focus:border-p-fg/40" />
                     </div>
                   ))}
                   {pwMsg && (
-                    <div className={`flex items-center gap-2 text-xs font-medium ${pwMsg.ok ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <div className={`flex items-center gap-2 text-xs font-medium ${pwMsg.ok ? 'text-p-good' : 'text-p-bad'}`}>
                       {pwMsg.ok ? <Check size={14} /> : <AlertCircle size={14} />} {pwMsg.text}
                     </div>
                   )}
@@ -376,14 +376,14 @@ export function AccountPage() {
                     const total = KYC_DOC_TYPES.length
                     const allDone = approved === total
                     return (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${allDone ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${allDone ? 'bg-p-good/10 text-p-good' : 'bg-p-warn/10 text-p-warn'}`}>
                         {approved}/{total} Verified
                       </span>
                     )
                   })()}
                 />
                 {kycLoading ? (
-                  <div className="space-y-3">{[0,1,2,3].map(i => <div key={i} className="h-14 bg-gray-50 rounded-lg animate-pulse" />)}</div>
+                  <div className="space-y-3">{[0,1,2,3].map(i => <div key={i} className="h-14 bg-p-panel2 rounded-lg animate-pulse" />)}</div>
                 ) : (
                   <div className="space-y-3">
                     {KYC_DOC_TYPES.map(({ type, label, sub, icon: Icon }) => {
@@ -391,26 +391,26 @@ export function AccountPage() {
                       const status = doc?.status
                       return (
                         <div key={type} className={`flex items-center gap-3 p-3 rounded-lg border transition ${
-                          status === 'APPROVED' ? 'border-emerald-100 bg-emerald-50/40' :
-                          status === 'REJECTED' ? 'border-red-100 bg-red-50/40' :
-                          status === 'PENDING' ? 'border-amber-100 bg-amber-50/30' :
-                          'border-gray-100 bg-gray-50/60'
+                          status === 'APPROVED' ? 'border-p-good/25 bg-emerald-50/40' :
+                          status === 'REJECTED' ? 'border-p-bad/25 bg-red-50/40' :
+                          status === 'PENDING' ? 'border-p-warn/25 bg-amber-50/30' :
+                          'border-p-line bg-p-panel2'
                         }`}>
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            status === 'APPROVED' ? 'bg-emerald-100' : status === 'REJECTED' ? 'bg-red-100' : 'bg-gray-100'
+                            status === 'APPROVED' ? 'bg-p-good/10' : status === 'REJECTED' ? 'bg-p-bad/10' : 'bg-p-panel2'
                           }`}>
-                            <Icon size={15} className={status === 'APPROVED' ? 'text-emerald-600' : status === 'REJECTED' ? 'text-red-500' : 'text-gray-400'} />
+                            <Icon size={15} className={status === 'APPROVED' ? 'text-p-good' : status === 'REJECTED' ? 'text-p-bad' : 'text-p-faint'} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-gray-900">{label}</p>
-                            <p className="text-[11px] text-gray-400">{doc?.status === 'REJECTED' && doc.notes ? doc.notes : sub}</p>
+                            <p className="text-xs font-semibold text-p-fg">{label}</p>
+                            <p className="text-[11px] text-p-faint">{doc?.status === 'REJECTED' && doc.notes ? doc.notes : sub}</p>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            {status === 'APPROVED' && <BadgeCheck size={16} className="text-emerald-500" />}
+                            {status === 'APPROVED' && <BadgeCheck size={16} className="text-p-good" />}
                             {status === 'REJECTED' && <XCircle size={15} className="text-red-400" />}
-                            {status === 'PENDING' && <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">PENDING</span>}
+                            {status === 'PENDING' && <span className="text-[10px] font-bold text-p-warn bg-p-warn/10 border border-p-warn/25 px-1.5 py-0.5 rounded">PENDING</span>}
                             {(!status || status === 'REJECTED') && (
-                              <label className={`cursor-pointer flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded border transition ${uploading === type ? 'border-gray-200 text-gray-300' : 'border-emerald-300 text-emerald-600 hover:bg-emerald-50'}`}>
+                              <label className={`cursor-pointer flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded border transition ${uploading === type ? 'border-p-line text-p-faint' : 'border-p-good/25 text-p-good hover:bg-p-good/10'}`}>
                                 {uploading === type ? '…' : <><Upload size={10} /> {status === 'REJECTED' ? 'Re-upload' : 'Upload'}</>}
                                 <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.webp,.pdf" disabled={!!uploading}
                                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadKycDoc(type, f); e.target.value = '' }} />
@@ -423,7 +423,7 @@ export function AccountPage() {
                   </div>
                 )}
                 {uploadMsg && (
-                  <p className={`mt-3 text-xs font-medium ${uploadMsg.ok ? 'text-emerald-600' : 'text-red-500'}`}>
+                  <p className={`mt-3 text-xs font-medium ${uploadMsg.ok ? 'text-p-good' : 'text-p-bad'}`}>
                     {uploadMsg.ok ? <Check size={12} className="inline mr-1" /> : <AlertCircle size={12} className="inline mr-1" />}
                     {uploadMsg.text}
                   </p>
@@ -434,35 +434,35 @@ export function AccountPage() {
               <Card>
                 <CardHeader icon={Lock} title="Security" />
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/60">
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-p-line bg-p-panel2">
                     <div>
-                      <p className="text-xs font-semibold text-gray-800">Two-Factor Authentication</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">Add a second layer of security to your account</p>
+                      <p className="text-xs font-semibold text-p-fg">Two-Factor Authentication</p>
+                      <p className="text-[11px] text-p-faint mt-0.5">Add a second layer of security to your account</p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-600">SOON</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-p-warn/10 text-p-warn">SOON</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/60">
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-p-line bg-p-panel2">
                     <div>
-                      <p className="text-xs font-semibold text-gray-800">Active Sessions</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">You're signed in on this device</p>
+                      <p className="text-xs font-semibold text-p-fg">Active Sessions</p>
+                      <p className="text-[11px] text-p-faint mt-0.5">You're signed in on this device</p>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-p-good">
+                      <span className="w-1.5 h-1.5 rounded-full bg-p-accent" />
                       1 active
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/60">
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-p-line bg-p-panel2">
                     <div>
-                      <p className="text-xs font-semibold text-gray-800">Last Login</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">
+                      <p className="text-xs font-semibold text-p-fg">Last Login</p>
+                      <p className="text-[11px] text-p-faint mt-0.5">
                         {profile?.user?.created_at
                           ? new Date(profile.user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                           : 'Unknown'}
                       </p>
                     </div>
-                    <Clock size={14} className="text-gray-300" />
+                    <Clock size={14} className="text-p-faint" />
                   </div>
                 </div>
               </Card>
@@ -472,22 +472,22 @@ export function AccountPage() {
                 <CardHeader icon={Bell} title="Notifications" />
                 <div className="space-y-2">
                   {NOTIF_OPTIONS.map(({ key, label, sub }) => (
-                    <div key={key} className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-50 last:border-0">
+                    <div key={key} className="flex items-center justify-between gap-3 py-2.5 border-b border-p-line last:border-0">
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-gray-800">{label}</p>
-                        <p className="text-[11px] text-gray-400">{sub}</p>
+                        <p className="text-xs font-semibold text-p-fg">{label}</p>
+                        <p className="text-[11px] text-p-faint">{sub}</p>
                       </div>
                       <button
                         onClick={() => setNotifs(prev => ({ ...prev, [key]: !prev[key] }))}
-                        className={`flex-shrink-0 w-8 h-4.5 rounded-full relative transition-colors duration-200 focus:outline-none ${notifs[key] ? 'bg-emerald-500' : 'bg-gray-200'}`}
+                        className={`flex-shrink-0 w-8 h-4.5 rounded-full relative transition-colors duration-200 focus:outline-none ${notifs[key] ? 'bg-p-accent' : 'bg-gray-200'}`}
                         style={{ height: '18px', width: '32px' }}
                       >
-                        <span className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white shadow transition-all duration-200 ${notifs[key] ? 'left-[14px]' : 'left-0.5'}`} />
+                        <span className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-p-panel shadow transition-all duration-200 ${notifs[key] ? 'left-[14px]' : 'left-0.5'}`} />
                       </button>
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 flex items-center gap-1.5 text-[11px] text-gray-400">
+                <div className="mt-3 flex items-center gap-1.5 text-[11px] text-p-faint">
                   <BellOff size={12} />
                   Notification emails are sent to {profile?.user?.email}
                 </div>
@@ -503,20 +503,20 @@ export function AccountPage() {
             <Card>
               <CardHeader icon={QrCode} title="Two-Factor Authentication"
                 badge={twofa
-                  ? <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${twofa.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                  ? <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${twofa.enabled ? 'bg-p-good/10 text-p-good' : 'bg-p-panel2 text-p-muted'}`}>
                       {twofa.enabled ? 'Enabled' : 'Disabled'}
                     </span>
                   : null}
               />
               {twofaMsg && (
-                <div className={`mb-4 flex items-center gap-2 text-xs font-medium ${twofaMsg.ok ? 'text-emerald-600' : 'text-red-500'}`}>
+                <div className={`mb-4 flex items-center gap-2 text-xs font-medium ${twofaMsg.ok ? 'text-p-good' : 'text-p-bad'}`}>
                   {twofaMsg.ok ? <Check size={14} /> : <AlertCircle size={14} />} {twofaMsg.text}
                 </div>
               )}
 
               {twofaStep === 'idle' && !twofa?.enabled && (
                 <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Protect your account with Google Authenticator or any TOTP app.</p>
+                  <p className="text-xs text-p-muted">Protect your account with Google Authenticator or any TOTP app.</p>
                   <button onClick={start2faSetup} disabled={twofaLoading}
                     className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
                     {twofaLoading ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
@@ -527,34 +527,34 @@ export function AccountPage() {
 
               {twofaStep === 'setup' && qrCode && (
                 <div className="space-y-4">
-                  <p className="text-xs text-gray-500">Scan this QR code with your authenticator app, then enter the 6-digit code to confirm.</p>
-                  <img src={qrCode} alt="QR code" className="w-40 h-40 rounded-lg border border-gray-100" />
+                  <p className="text-xs text-p-muted">Scan this QR code with your authenticator app, then enter the 6-digit code to confirm.</p>
+                  <img src={qrCode} alt="QR code" className="w-40 h-40 rounded-lg border border-p-line" />
                   <div>
-                    <p className="text-[10px] text-gray-400 mb-1">Or enter this key manually:</p>
-                    <code className="text-xs font-mono bg-gray-50 border border-gray-100 px-2 py-1 rounded break-all">{totpSetupSecret}</code>
+                    <p className="text-[10px] text-p-faint mb-1">Or enter this key manually:</p>
+                    <code className="text-xs font-mono bg-p-panel2 border border-p-line px-2 py-1 rounded break-all">{totpSetupSecret}</code>
                   </div>
                   <input type="text" inputMode="numeric" maxLength={6} value={totpCode}
                     onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="000000" className="w-32 px-3 py-2 border border-gray-200 rounded-lg text-center text-lg font-mono tracking-widest focus:outline-none focus:border-emerald-400" />
+                    placeholder="000000" className="w-32 px-3 py-2 border border-p-line rounded-lg text-center text-lg font-mono tracking-widest focus:outline-none focus:border-p-fg/40" />
                   <div className="flex gap-2">
                     <button onClick={enable2fa} disabled={twofaLoading || totpCode.length !== 6}
-                      className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                      className="bg-p-accent hover:brightness-95 disabled:opacity-50 text-p-accent-ink px-4 py-2 rounded-lg text-sm font-semibold transition">
                       {twofaLoading ? 'Verifying…' : 'Activate'}
                     </button>
                     <button onClick={() => { setTwofaStep('idle'); setQrCode(null); setTotpCode('') }}
-                      className="px-4 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-700 border border-gray-200 transition">Cancel</button>
+                      className="px-4 py-2 rounded-lg text-sm text-p-muted hover:text-p-fg border border-p-line transition">Cancel</button>
                   </div>
                 </div>
               )}
 
               {twofaStep === 'idle' && twofa?.enabled && (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-2 text-sm text-p-good bg-p-good/10 border border-p-good/25 rounded-lg px-3 py-2">
                     <ShieldCheck size={14} /> Your account is protected with 2FA
                   </div>
                   {twofaStep === 'idle' && (
                     <button onClick={() => setTwofaStep('disable')}
-                      className="text-xs text-red-500 hover:text-red-700 transition font-medium">
+                      className="text-xs text-p-bad hover:text-p-bad transition font-medium">
                       Disable 2FA
                     </button>
                   )}
@@ -563,17 +563,17 @@ export function AccountPage() {
 
               {twofaStep === 'disable' && (
                 <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Enter your current authenticator code to disable 2FA.</p>
+                  <p className="text-xs text-p-muted">Enter your current authenticator code to disable 2FA.</p>
                   <input type="text" inputMode="numeric" maxLength={6} value={totpCode}
                     onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="000000" className="w-32 px-3 py-2 border border-gray-200 rounded-lg text-center text-lg font-mono tracking-widest focus:outline-none focus:border-red-400" />
+                    placeholder="000000" className="w-32 px-3 py-2 border border-p-line rounded-lg text-center text-lg font-mono tracking-widest focus:outline-none focus:border-red-400" />
                   <div className="flex gap-2">
                     <button onClick={disable2fa} disabled={twofaLoading || totpCode.length !== 6}
-                      className="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                      className="bg-p-bad hover:bg-p-bad disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
                       {twofaLoading ? 'Disabling…' : 'Disable 2FA'}
                     </button>
                     <button onClick={() => { setTwofaStep('idle'); setTotpCode('') }}
-                      className="px-4 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-700 border border-gray-200 transition">Cancel</button>
+                      className="px-4 py-2 rounded-lg text-sm text-p-muted hover:text-p-fg border border-p-line transition">Cancel</button>
                   </div>
                 </div>
               )}
@@ -583,26 +583,26 @@ export function AccountPage() {
             <Card>
               <CardHeader icon={MonitorSmartphone} title="Active Sessions" />
               {sessionsLoading ? (
-                <div className="space-y-2">{[1,2].map(i => <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse" />)}</div>
+                <div className="space-y-2">{[1,2].map(i => <div key={i} className="h-10 bg-p-panel2 rounded-lg animate-pulse" />)}</div>
               ) : sessions.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-4">No sessions found</p>
+                <p className="text-xs text-p-faint text-center py-4">No sessions found</p>
               ) : (
                 <div className="space-y-2">
                   {sessions.map(s => (
-                    <div key={s.id} className={`flex items-center gap-3 p-3 rounded-lg border ${s.is_current ? 'border-emerald-200 bg-emerald-50/40' : 'border-gray-100 bg-gray-50/40'}`}>
-                      <MonitorSmartphone size={14} className={s.is_current ? 'text-emerald-500' : 'text-gray-400'} />
+                    <div key={s.id} className={`flex items-center gap-3 p-3 rounded-lg border ${s.is_current ? 'border-p-good/25 bg-emerald-50/40' : 'border-p-line bg-p-panel2'}`}>
+                      <MonitorSmartphone size={14} className={s.is_current ? 'text-p-good' : 'text-p-faint'} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-gray-700 truncate">
+                        <p className="text-xs font-semibold text-p-ink2 truncate">
                           {s.user_agent ? s.user_agent.split(' ').slice(-2).join(' ') : 'Unknown device'}
-                          {s.is_current && <span className="ml-2 text-[10px] font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">Current</span>}
+                          {s.is_current && <span className="ml-2 text-[10px] font-bold text-p-good bg-p-good/10 px-1.5 py-0.5 rounded-full">Current</span>}
                         </p>
-                        <p className="text-[10px] text-gray-400">
+                        <p className="text-[10px] text-p-faint">
                           {s.ip || 'Unknown IP'} · {new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
                       </div>
                       {!s.is_current && (
                         <button onClick={() => revokeSession(s.id)} disabled={revoking === s.id}
-                          className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition disabled:opacity-50">
+                          className="p-1.5 text-p-faint hover:text-p-bad hover:bg-p-bad/10 rounded-lg transition disabled:opacity-50">
                           {revoking === s.id ? <RefreshCw size={13} className="animate-spin" /> : <Trash2 size={13} />}
                         </button>
                       )}

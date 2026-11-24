@@ -41,7 +41,7 @@ function DonutChart({ data }: { data: { status: string; count: number }[] }) {
     COMPLETED: '#10b981', PENDING: '#f59e0b', FAILED: '#ef4444', REFUNDED: '#6366f1',
   }
   const total = data.reduce((s, d) => s + d.count, 0)
-  if (!total) return <div className="h-28 flex items-center justify-center text-xs text-gray-300">No data</div>
+  if (!total) return <div className="h-28 flex items-center justify-center text-xs text-p-faint">No data</div>
 
   let cumulative = 0
   const cx = 50, cy = 50, r = 40, stroke = 14
@@ -72,7 +72,7 @@ function DonutChart({ data }: { data: { status: string; count: number }[] }) {
         {segments.map(s => (
           <div key={s.status} className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: s.color }} />
-            <span className="text-gray-600">{s.status}</span>
+            <span className="text-p-ink2">{s.status}</span>
             <span className="ml-auto font-semibold tabular-nums">{s.count.toLocaleString()}</span>
           </div>
         ))}
@@ -86,11 +86,11 @@ function HeatRow({ hour, count, max }: { hour: number; count: number; max: numbe
   const label = hour === 0 ? '12am' : hour < 12 ? `${hour}am` : hour === 12 ? '12pm' : `${hour - 12}pm`
   return (
     <div className="flex items-center gap-2 text-[10px]">
-      <span className="w-7 text-gray-400 text-right">{label}</span>
-      <div className="flex-1 h-3.5 rounded overflow-hidden bg-gray-100">
+      <span className="w-7 text-p-faint text-right">{label}</span>
+      <div className="flex-1 h-3.5 rounded overflow-hidden bg-p-panel2">
         <div className="h-full rounded bg-emerald-400 transition-all" style={{ width: `${pct * 100}%`, opacity: 0.7 + pct * 0.3 }} />
       </div>
-      <span className="w-6 text-gray-500 tabular-nums">{count}</span>
+      <span className="w-6 text-p-muted tabular-nums">{count}</span>
     </div>
   )
 }
@@ -123,17 +123,17 @@ export function AnalyticsPage() {
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div className="px-4 sm:px-6 pt-6 sm:pt-8 pb-1 flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold text-gray-900 flex items-center gap-2">
-            <BarChart2 size={16} className="text-emerald-500" /> Analytics
+          <h1 className="text-2xl font-semibold tracking-tight text-p-fg flex items-center gap-2">
+            <BarChart2 size={16} className="text-p-good" /> Analytics
           </h1>
-          <p className="text-xs text-gray-400">Transaction insights and trends</p>
+          <p className="text-xs text-p-faint">Transaction insights and trends</p>
         </div>
         <div className="flex gap-1">
           {[7, 14, 30, 90].map(d => (
             <button key={d} onClick={() => setDays(d)}
-              className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition ${days === d ? 'bg-emerald-500 text-white border-emerald-500' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+              className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition ${days === d ? 'bg-p-accent text-p-accent-ink border-p-accent' : 'border-p-line text-p-muted hover:bg-p-panel2'}`}>
               {d}d
             </button>
           ))}
@@ -144,63 +144,63 @@ export function AnalyticsPage() {
         {/* KPIs */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Volume', value: loading ? '…' : formatTZS(totalVol), icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { label: 'Transactions', value: loading ? '…' : totalTx.toLocaleString(), icon: Activity, color: 'text-blue-600', bg: 'bg-blue-50' },
-            { label: 'Success Rate', value: loading ? '…' : `${successRate}%`, icon: TrendingUp, color: Number(successRate) >= 90 ? 'text-emerald-600' : 'text-amber-600', bg: Number(successRate) >= 90 ? 'bg-emerald-50' : 'bg-amber-50' },
+            { label: 'Volume', value: loading ? '…' : formatTZS(totalVol), icon: TrendingUp, color: 'text-p-good', bg: 'bg-p-good/10' },
+            { label: 'Transactions', value: loading ? '…' : totalTx.toLocaleString(), icon: Activity, color: 'text-p-info', bg: 'bg-p-info/10' },
+            { label: 'Success Rate', value: loading ? '…' : `${successRate}%`, icon: TrendingUp, color: Number(successRate) >= 90 ? 'text-p-good' : 'text-p-warn', bg: Number(successRate) >= 90 ? 'bg-p-good/10' : 'bg-p-warn/10' },
           ].map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+            <div key={label} className="bg-p-panel rounded-xl border border-p-line p-4 shadow-sm">
               <div className={`w-7 h-7 rounded-lg ${bg} flex items-center justify-center mb-2`}>
                 <Icon size={13} className={color} />
               </div>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">{label}</p>
-              <p className="text-base font-bold text-gray-900 mt-0.5 tabular-nums">{value}</p>
+              <p className="text-[10px] font-semibold text-p-faint uppercase tracking-wide">{label}</p>
+              <p className="text-base font-bold text-p-fg mt-0.5 tabular-nums">{value}</p>
             </div>
           ))}
         </div>
 
         {/* Volume chart */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm font-bold text-gray-900">Daily Volume</p>
-              <p className="text-xs text-gray-400">Completed payment amounts</p>
+              <p className="text-sm font-bold text-p-fg">Daily Volume</p>
+              <p className="text-xs text-p-faint">Completed payment amounts</p>
             </div>
           </div>
-          {loading ? <div className="h-28 animate-pulse bg-gray-50 rounded-lg" /> : (
+          {loading ? <div className="h-28 animate-pulse bg-p-panel2 rounded-lg" /> : (
             volData.length > 0
               ? <BarChart data={volData} valueKey="value" labelKey="day" color="#10b981" />
-              : <div className="h-28 flex items-center justify-center text-xs text-gray-300">No data for this period</div>
+              : <div className="h-28 flex items-center justify-center text-xs text-p-faint">No data for this period</div>
           )}
         </div>
 
         {/* Transactions + Donut */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <p className="text-sm font-bold text-gray-900 mb-1">Daily Transactions</p>
-            <p className="text-xs text-gray-400 mb-4">All statuses</p>
-            {loading ? <div className="h-28 animate-pulse bg-gray-50 rounded-lg" /> : (
+          <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-5">
+            <p className="text-sm font-bold text-p-fg mb-1">Daily Transactions</p>
+            <p className="text-xs text-p-faint mb-4">All statuses</p>
+            {loading ? <div className="h-28 animate-pulse bg-p-panel2 rounded-lg" /> : (
               txData.length > 0
                 ? <BarChart data={txData} valueKey="value" labelKey="day" color="#3b82f6" />
-                : <div className="h-28 flex items-center justify-center text-xs text-gray-300">No data</div>
+                : <div className="h-28 flex items-center justify-center text-xs text-p-faint">No data</div>
             )}
           </div>
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <p className="text-sm font-bold text-gray-900 mb-1">Status Breakdown</p>
-            <p className="text-xs text-gray-400 mb-4">All-time distribution</p>
-            {loading ? <div className="h-28 animate-pulse bg-gray-50 rounded-lg" /> : <DonutChart data={data?.statusBreakdown || []} />}
+          <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-5">
+            <p className="text-sm font-bold text-p-fg mb-1">Status Breakdown</p>
+            <p className="text-xs text-p-faint mb-4">All-time distribution</p>
+            {loading ? <div className="h-28 animate-pulse bg-p-panel2 rounded-lg" /> : <DonutChart data={data?.statusBreakdown || []} />}
           </div>
         </div>
 
         {/* Hourly heatmap */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Clock size={14} className="text-gray-400" />
+            <Clock size={14} className="text-p-faint" />
             <div>
-              <p className="text-sm font-bold text-gray-900">Peak Hours</p>
-              <p className="text-xs text-gray-400">Transactions by hour of day (last 7 days)</p>
+              <p className="text-sm font-bold text-p-fg">Peak Hours</p>
+              <p className="text-xs text-p-faint">Transactions by hour of day (last 7 days)</p>
             </div>
           </div>
-          {loading ? <div className="h-32 animate-pulse bg-gray-50 rounded-lg" /> : (
+          {loading ? <div className="h-32 animate-pulse bg-p-panel2 rounded-lg" /> : (
             <div className="grid grid-cols-2 gap-x-6 gap-y-1">
               {hourly.map((h: any) => (
                 <HeatRow key={h.hour} hour={h.hour} count={h.count} max={hourlyMax} />

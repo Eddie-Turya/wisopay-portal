@@ -33,13 +33,13 @@ export function PaymentLinksPage() {
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+      <div className="px-4 sm:px-6 pt-6 sm:pt-8 pb-1 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-base font-bold text-gray-900">Payment Links</h1>
-          <p className="text-xs text-gray-400 hidden sm:block">{links.length} link{links.length !== 1 ? 's' : ''} created</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-p-fg">Payment Links</h1>
+          <p className="text-xs text-p-faint hidden sm:block">{links.length} link{links.length !== 1 ? 's' : ''} created</p>
         </div>
         <button onClick={() => navigate('/collect')}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition min-h-[38px]">
+          className="flex items-center gap-2 bg-p-accent hover:brightness-95 text-p-accent-ink px-4 py-2 rounded-lg text-sm font-semibold transition min-h-[38px]">
           <Plus size={14} /> New Link
         </button>
       </div>
@@ -47,15 +47,15 @@ export function PaymentLinksPage() {
       <div className="p-4 sm:p-6 space-y-6">
         {loading ? (
           <div className="space-y-3">
-            {[1,2,3].map(i => <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse h-24" />)}
+            {[1,2,3].map(i => <div key={i} className="bg-p-panel rounded-xl border border-p-line p-5 animate-pulse h-24" />)}
           </div>
         ) : links.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-14 text-center">
+          <div className="bg-p-panel rounded-xl border border-p-line p-14 text-center">
             <Link2 size={32} className="text-gray-200 mx-auto mb-3" />
-            <p className="text-sm text-gray-500 font-medium">No payment links yet</p>
-            <p className="text-xs text-gray-400 mt-1 mb-4">Create shareable links that customers use to pay you</p>
+            <p className="text-sm text-p-muted font-medium">No payment links yet</p>
+            <p className="text-xs text-p-faint mt-1 mb-4">Create shareable links that customers use to pay you</p>
             <button onClick={() => navigate('/collect')}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              className="bg-p-accent hover:brightness-95 text-p-accent-ink px-4 py-2 rounded-lg text-sm font-semibold transition">
               Create your first link
             </button>
           </div>
@@ -63,7 +63,7 @@ export function PaymentLinksPage() {
           <>
             {active.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Active · {active.length}</p>
+                <p className="text-xs font-bold text-p-muted uppercase tracking-wide mb-3">Active · {active.length}</p>
                 <div className="space-y-3">
                   {active.map(link => <LinkCard key={link.id} link={link} copied={copied} onCopy={copy} onDelete={remove} />)}
                 </div>
@@ -71,7 +71,7 @@ export function PaymentLinksPage() {
             )}
             {expired.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Expired · {expired.length}</p>
+                <p className="text-xs font-bold text-p-muted uppercase tracking-wide mb-3">Expired · {expired.length}</p>
                 <div className="space-y-3 opacity-60">
                   {expired.map(link => <LinkCard key={link.id} link={link} copied={copied} onCopy={copy} onDelete={remove} />)}
                 </div>
@@ -86,35 +86,35 @@ export function PaymentLinksPage() {
 
 function LinkCard({ link, copied, onCopy, onDelete }: any) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+    <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <p className="text-sm font-bold text-gray-900">{`TZS ${Number(link.amount_minor).toLocaleString()}`}</p>
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${link.link_status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+            <p className="text-sm font-bold text-p-fg">{`TZS ${Number(link.amount_minor).toLocaleString()}`}</p>
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${link.link_status === 'active' ? 'bg-p-good/10 text-p-good' : 'bg-p-panel2 text-p-muted'}`}>
               {link.link_status.toUpperCase()}
             </span>
           </div>
-          {link.description && <p className="text-xs text-gray-500 mb-1.5">{link.description}</p>}
+          {link.description && <p className="text-xs text-p-muted mb-1.5">{link.description}</p>}
           <div className="flex items-center gap-2">
-            <code className="text-[11px] text-gray-400 font-mono truncate flex-1 min-w-0">{link.url}</code>
+            <code className="text-[11px] text-p-faint font-mono truncate flex-1 min-w-0">{link.url}</code>
           </div>
-          <div className="flex items-center gap-3 mt-1.5 text-[10px] text-gray-400">
+          <div className="flex items-center gap-3 mt-1.5 text-[10px] text-p-faint">
             <span>Created {new Date(link.created_at).toLocaleDateString()}</span>
             {link.expires_at && <span>· Expires {new Date(link.expires_at).toLocaleDateString()}</span>}
           </div>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <button onClick={() => onCopy(link.url, link.id)}
-            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition" title="Copy link">
-            {copied === link.id ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+            className="p-2 text-p-faint hover:text-p-fg hover:bg-p-panel2 rounded-lg transition" title="Copy link">
+            {copied === link.id ? <Check size={14} className="text-p-good" /> : <Copy size={14} />}
           </button>
           <a href={link.url} target="_blank" rel="noopener noreferrer"
-            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition" title="Open link">
+            className="p-2 text-p-faint hover:text-p-fg hover:bg-p-panel2 rounded-lg transition" title="Open link">
             <ExternalLink size={14} />
           </a>
           <button onClick={() => onDelete(link.id)}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition" title="Delete">
+            className="p-2 text-p-faint hover:text-p-bad hover:bg-p-bad/10 rounded-lg transition" title="Delete">
             <Trash2 size={14} />
           </button>
         </div>

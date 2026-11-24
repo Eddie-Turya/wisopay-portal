@@ -84,53 +84,53 @@ export function OnboardingChecklist() {
   if (dismissed || loading || allDone) return null
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden mb-5">
+    <div className="bg-p-panel border border-p-line rounded-2xl shadow-sm overflow-hidden mb-5">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100">
+      <div className="flex items-center justify-between px-5 py-4 bg-p-good/10 border-b border-p-line">
         <div>
-          <p className="text-sm font-bold text-emerald-800">Get started with Wisopay</p>
-          <p className="text-xs text-emerald-600 mt-0.5">{doneCount} of {steps.length} steps complete</p>
+          <p className="text-sm font-semibold text-p-fg">Get started with Wisopay</p>
+          <p className="text-xs text-p-muted mt-0.5">{doneCount} of {steps.length} steps complete</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Progress bar */}
-          <div className="w-24 h-1.5 bg-emerald-200 rounded-full overflow-hidden">
+          <div className="w-24 h-1.5 bg-p-line rounded-full overflow-hidden">
             <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+              className="h-full bg-p-accent rounded-full transition-all duration-500"
               style={{ width: `${(doneCount / steps.length) * 100}%` }}
             />
           </div>
-          <button onClick={dismiss} className="text-emerald-400 hover:text-emerald-600 transition-colors p-1">
+          <button onClick={dismiss} className="text-emerald-400 hover:text-p-good transition-colors p-1">
             <X size={14} />
           </button>
         </div>
       </div>
 
       {/* Steps */}
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-p-line">
         {steps.map(step => {
           const Icon = step.icon
           return (
             <div key={step.id} className={`flex items-center gap-4 px-5 py-3.5 ${step.done ? 'opacity-60' : ''}`}>
               {step.done
-                ? <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0" />
-                : <Circle size={18} className="text-gray-300 flex-shrink-0" />}
-              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
-                <Icon size={15} className={step.done ? 'text-emerald-500' : 'text-gray-400'} />
+                ? <CheckCircle2 size={18} className="text-p-good flex-shrink-0" />
+                : <Circle size={18} className="text-p-faint flex-shrink-0" />}
+              <div className="w-8 h-8 rounded-lg bg-p-panel2 flex items-center justify-center flex-shrink-0">
+                <Icon size={15} className={step.done ? 'text-p-good' : 'text-p-faint'} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${step.done ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{step.title}</p>
-                <p className="text-xs text-gray-400">{step.desc}</p>
+                <p className={`text-sm font-semibold ${step.done ? 'text-p-faint line-through' : 'text-p-fg'}`}>{step.title}</p>
+                <p className="text-xs text-p-faint">{step.desc}</p>
               </div>
               {!step.done && step.route && (
                 <button
                   onClick={() => navigate(step.route!)}
-                  className="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors flex-shrink-0"
+                  className="flex items-center gap-1 text-xs font-semibold text-p-good hover:text-p-good transition-colors flex-shrink-0"
                 >
                   {step.action} <ChevronRight size={12} />
                 </button>
               )}
               {!step.done && !step.route && step.action && (
-                <span className="text-xs text-gray-400 italic flex-shrink-0">{step.action}</span>
+                <span className="text-xs text-p-faint italic flex-shrink-0">{step.action}</span>
               )}
             </div>
           )

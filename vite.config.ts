@@ -9,6 +9,7 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/portal': { target: API, changeOrigin: true },
+      '/admin': { target: API, changeOrigin: true },
     },
   },
   base: process.env.VITE_BASE_PATH || '/',

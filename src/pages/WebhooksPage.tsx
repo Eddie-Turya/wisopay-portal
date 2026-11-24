@@ -108,14 +108,14 @@ export function WebhooksPage() {
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 flex items-start justify-between gap-3">
+      <div className="px-4 sm:px-6 pt-6 sm:pt-8 pb-1 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-base font-bold text-gray-900">Webhooks</h1>
-          <p className="text-xs text-gray-400 hidden sm:block">Receive event notifications at your endpoint</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-p-fg">Webhooks</h1>
+          <p className="text-xs text-p-faint hidden sm:block">Receive event notifications at your endpoint</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex-shrink-0 min-h-[38px]"
+          className="flex items-center gap-2 bg-p-accent hover:brightness-95 text-p-accent-ink px-4 py-2 rounded-lg text-sm font-semibold transition flex-shrink-0 min-h-[38px]"
         >
           {showForm ? <X size={15} /> : <Plus size={15} />}
           {showForm ? 'Cancel' : 'Add Webhook'}
@@ -125,14 +125,14 @@ export function WebhooksPage() {
       <div className="p-4 sm:p-6 space-y-5">
         {/* New secret reveal */}
         {newSecret && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <div className="bg-p-warn/10 border border-p-warn/25 rounded-xl p-5">
             <div className="flex items-start gap-3">
-              <ShieldCheck size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
+              <ShieldCheck size={20} className="text-p-warn flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-amber-800 mb-1">Webhook secret — copy it now</p>
-                <p className="text-xs text-amber-700 mb-3">Use this to verify webhook signatures. It won't be shown again.</p>
+                <p className="text-sm font-semibold text-p-warn mb-1">Webhook secret — copy it now</p>
+                <p className="text-xs text-p-warn mb-3">Use this to verify webhook signatures. It won't be shown again.</p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-white border border-amber-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-800 break-all">{newSecret}</code>
+                  <code className="flex-1 bg-p-panel border border-p-warn/25 rounded-lg px-3 py-2 text-xs font-mono text-p-fg break-all">{newSecret}</code>
                   <button onClick={() => copy(newSecret)} className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition flex-shrink-0">
                     {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
                   </button>
@@ -144,21 +144,21 @@ export function WebhooksPage() {
 
         {/* Create form */}
         {showForm && (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
-            <h3 className="text-sm font-bold text-gray-900 mb-4">New Webhook Endpoint</h3>
+          <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-4 sm:p-6">
+            <h3 className="text-sm font-bold text-p-fg mb-4">New Webhook Endpoint</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Endpoint URL</label>
+                <label className="block text-xs font-semibold text-p-ink2 uppercase tracking-wide mb-1.5">Endpoint URL</label>
                 <input
                   type="url"
                   value={url}
                   onChange={e => setUrl(e.target.value)}
                   placeholder="https://yourdomain.com/webhooks/deliviopay"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-400 bg-white"
+                  className="w-full px-4 py-2.5 border border-p-line rounded-lg text-sm focus:outline-none focus:border-p-fg/40 bg-p-panel"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Events to listen for</label>
+                <label className="block text-xs font-semibold text-p-ink2 uppercase tracking-wide mb-2">Events to listen for</label>
                 <div className="flex flex-wrap gap-2">
                   {ALL_EVENTS.map(event => (
                     <button
@@ -167,8 +167,8 @@ export function WebhooksPage() {
                       onClick={() => toggle(event)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium border transition ${
                         selectedEvents.includes(event)
-                          ? 'bg-emerald-500 text-white border-emerald-500'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          ? 'bg-p-accent text-p-accent-ink border-p-accent'
+                          : 'bg-p-panel text-p-ink2 border-p-line hover:bg-p-panel2'
                       }`}
                     >
                       {event}
@@ -179,7 +179,7 @@ export function WebhooksPage() {
               <button
                 onClick={create}
                 disabled={creating || !url || selectedEvents.length === 0}
-                className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition"
+                className="bg-p-accent hover:brightness-95 disabled:opacity-50 text-p-accent-ink px-5 py-2.5 rounded-lg text-sm font-semibold transition"
               >
                 {creating ? 'Creating…' : 'Create Webhook'}
               </button>
@@ -190,58 +190,58 @@ export function WebhooksPage() {
         {/* Webhook list */}
         {loading ? (
           Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 animate-pulse">
-              <div className="h-4 bg-gray-100 rounded w-64 mb-3" />
-              <div className="h-3 bg-gray-100 rounded w-48" />
+            <div key={i} className="bg-p-panel rounded-xl border border-p-line p-6 animate-pulse">
+              <div className="h-4 bg-p-panel2 rounded w-64 mb-3" />
+              <div className="h-3 bg-p-panel2 rounded w-48" />
             </div>
           ))
         ) : hooks.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-14 text-center">
-            <Webhook size={32} className="text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-500 font-medium">No webhooks yet</p>
-            <p className="text-xs text-gray-400 mt-1">Add an endpoint to receive payment event notifications</p>
+          <div className="bg-p-panel rounded-xl border border-p-line p-14 text-center">
+            <Webhook size={32} className="text-p-faint mx-auto mb-3" />
+            <p className="text-sm text-p-muted font-medium">No webhooks yet</p>
+            <p className="text-xs text-p-faint mt-1">Add an endpoint to receive payment event notifications</p>
           </div>
         ) : (
           hooks.map(hook => (
-            <div key={hook.id} className={`bg-white rounded-xl border shadow-sm overflow-hidden ${hook.enabled ? 'border-gray-100' : 'border-gray-100 opacity-70'}`}>
+            <div key={hook.id} className={`bg-p-panel rounded-xl border shadow-sm overflow-hidden ${hook.enabled ? 'border-p-line' : 'border-p-line opacity-70'}`}>
               <div className="p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${hook.enabled ? 'bg-emerald-500' : 'bg-gray-300'}`} />
-                      <code className="text-sm font-mono text-gray-800 break-all line-clamp-2">{hook.url}</code>
+                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${hook.enabled ? 'bg-p-accent' : 'bg-gray-300'}`} />
+                      <code className="text-sm font-mono text-p-fg break-all line-clamp-2">{hook.url}</code>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {hook.events.map((e: string) => (
-                        <span key={e} className="px-2 py-0.5 bg-gray-100 rounded text-[10px] font-mono text-gray-600">{e}</span>
+                        <span key={e} className="px-2 py-0.5 bg-p-panel2 rounded text-[10px] font-mono text-p-ink2">{e}</span>
                       ))}
                     </div>
                     <div className="flex items-center gap-1.5 mt-2">
-                      <ShieldCheck size={11} className="text-gray-400 flex-shrink-0" />
-                      <span className="text-[11px] font-mono text-gray-400">Signing secret: {hook.secret_prefix}</span>
+                      <ShieldCheck size={11} className="text-p-faint flex-shrink-0" />
+                      <span className="text-[11px] font-mono text-p-faint">Signing secret: {hook.secret_prefix}</span>
                       <button
                         onClick={() => rotateSecret(hook.id)}
                         disabled={rotating === hook.id}
-                        className="ml-1 flex items-center gap-1 text-[10px] text-gray-400 hover:text-amber-600 transition font-medium disabled:opacity-50"
+                        className="ml-1 flex items-center gap-1 text-[10px] text-p-faint hover:text-p-warn transition font-medium disabled:opacity-50"
                         title="Rotate signing secret"
                       >
                         <RefreshCw size={10} className={rotating === hook.id ? 'animate-spin' : ''} />
                         Rotate
                       </button>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">Added {new Date(hook.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-p-faint mt-1">Added {new Date(hook.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => toggleEnabled(hook.id, hook.enabled)}
-                      className="text-gray-400 hover:text-gray-700 transition"
+                      className="text-p-faint hover:text-p-fg transition"
                       title={hook.enabled ? 'Disable' : 'Enable'}
                     >
-                      {hook.enabled ? <ToggleRight size={22} className="text-emerald-500" /> : <ToggleLeft size={22} />}
+                      {hook.enabled ? <ToggleRight size={22} className="text-p-good" /> : <ToggleLeft size={22} />}
                     </button>
                     <button
                       onClick={() => remove(hook.id)}
-                      className="text-gray-400 hover:text-red-500 transition p-1"
+                      className="text-p-faint hover:text-p-bad transition p-1"
                       title="Delete"
                     >
                       <Trash2 size={16} />
@@ -250,7 +250,7 @@ export function WebhooksPage() {
                 </div>
                 <button
                   onClick={() => toggleLogs(hook.id)}
-                  className="mt-3 flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition font-medium"
+                  className="mt-3 flex items-center gap-1.5 text-xs text-p-faint hover:text-p-fg transition font-medium"
                 >
                   {expandedLogs === hook.id ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                   Delivery logs
@@ -258,29 +258,29 @@ export function WebhooksPage() {
               </div>
 
               {expandedLogs === hook.id && (
-                <div className="border-t border-gray-100 bg-gray-50/60">
+                <div className="border-t border-p-line bg-p-panel2">
                   {logsLoading === hook.id ? (
                     <div className="p-4 space-y-2">
                       {[1,2,3].map(i => <div key={i} className="h-3 bg-gray-200 rounded animate-pulse w-3/4" />)}
                     </div>
                   ) : !logs[hook.id]?.length ? (
-                    <p className="text-xs text-gray-400 text-center py-6">No delivery attempts yet</p>
+                    <p className="text-xs text-p-faint text-center py-6">No delivery attempts yet</p>
                   ) : (
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-p-line">
                       {logs[hook.id].map((log: any) => (
                         <div key={log.id} className="flex items-center gap-3 px-5 py-2.5">
                           {log.success
-                            ? <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                            ? <CheckCircle2 size={14} className="text-p-good flex-shrink-0" />
                             : <XCircle size={14} className="text-red-400 flex-shrink-0" />}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-mono font-semibold text-gray-700">{log.event_type}</span>
+                              <span className="text-xs font-mono font-semibold text-p-ink2">{log.event_type}</span>
                               {log.status_code && (
-                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${log.success ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${log.success ? 'bg-p-good/10 text-p-good' : 'bg-p-bad/10 text-p-bad'}`}>
                                   {log.status_code}
                                 </span>
                               )}
-                              {log.duration_ms && <span className="text-[10px] text-gray-400">{log.duration_ms}ms</span>}
+                              {log.duration_ms && <span className="text-[10px] text-p-faint">{log.duration_ms}ms</span>}
                             </div>
                             {log.error && <p className="text-[10px] text-red-400 truncate mt-0.5">{log.error}</p>}
                           </div>
@@ -289,14 +289,14 @@ export function WebhooksPage() {
                               <button
                                 onClick={() => retryDelivery(hook.id, log.id)}
                                 disabled={retrying === log.id}
-                                className="flex items-center gap-1 text-[10px] font-semibold text-gray-400 hover:text-emerald-600 transition disabled:opacity-50"
+                                className="flex items-center gap-1 text-[10px] font-semibold text-p-faint hover:text-p-good transition disabled:opacity-50"
                                 title="Retry this delivery"
                               >
                                 <RotateCcw size={11} className={retrying === log.id ? 'animate-spin' : ''} />
                                 Retry
                               </button>
                             )}
-                            <p className="text-[10px] text-gray-400">
+                            <p className="text-[10px] text-p-faint">
                               {new Date(log.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>

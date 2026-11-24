@@ -72,7 +72,7 @@ function methodColor(method: string) {
   if (method === 'GET') return 'bg-blue-500/15 text-blue-400 border-blue-500/20'
   if (method === 'PATCH') return 'bg-amber-500/15 text-amber-400 border-amber-500/20'
   if (method === 'DELETE') return 'bg-red-500/15 text-red-400 border-red-500/20'
-  return 'bg-slate-500/15 text-slate-400 border-slate-500/20'
+  return 'bg-slate-500/15 text-p-faint border-slate-500/20'
 }
 
 function statusColor(status: number) {
@@ -204,19 +204,19 @@ export function PlaygroundPage() {
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div className="px-4 sm:px-6 pt-6 sm:pt-8 pb-1 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
             <FlaskConical size={16} className="text-violet-600" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-gray-900">API Playground</h1>
-            <p className="text-xs text-gray-400">Test API calls against your sandbox — real responses, no real money</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-p-fg">API Playground</h1>
+            <p className="text-xs text-p-faint">Test API calls against your sandbox — real responses, no real money</p>
           </div>
         </div>
         <button
           onClick={() => setShowHistory(!showHistory)}
-          className="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg transition"
+          className="flex items-center gap-2 text-xs text-p-faint hover:text-p-fg border border-p-line px-3 py-1.5 rounded-lg transition"
         >
           <Clock size={13} />
           History ({history.length})
@@ -225,10 +225,10 @@ export function PlaygroundPage() {
 
       <div className="flex h-[calc(100vh-117px)] overflow-hidden">
         {/* Left — endpoint list */}
-        <div className="w-56 flex-shrink-0 border-r border-gray-100 overflow-y-auto py-3">
+        <div className="w-56 flex-shrink-0 border-r border-p-line overflow-y-auto py-3">
           {ENDPOINTS.map(group => (
             <div key={group.group}>
-              <p className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{group.group}</p>
+              <p className="px-4 py-2 text-[10px] font-bold text-p-faint uppercase tracking-widest">{group.group}</p>
               {group.items.map(ep => (
                 <button
                   key={ep.id}
@@ -236,13 +236,13 @@ export function PlaygroundPage() {
                   className={`w-full text-left px-4 py-2.5 flex items-center gap-2.5 transition-colors ${
                     selectedId === ep.id
                       ? 'bg-violet-50 border-r-2 border-violet-500'
-                      : 'hover:bg-gray-50'
+                      : 'hover:bg-p-panel2'
                   }`}
                 >
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border font-mono ${methodColor(ep.method)}`}>
                     {ep.method}
                   </span>
-                  <span className={`text-xs font-medium truncate ${selectedId === ep.id ? 'text-violet-700' : 'text-gray-700'}`}>
+                  <span className={`text-xs font-medium truncate ${selectedId === ep.id ? 'text-violet-700' : 'text-p-ink2'}`}>
                     {ep.label}
                   </span>
                 </button>
@@ -255,7 +255,7 @@ export function PlaygroundPage() {
         <div className="flex-1 overflow-y-auto p-5 space-y-4 min-w-0">
           {/* Sandbox key */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs font-semibold text-p-muted uppercase tracking-wide mb-1.5">
               Sandbox API Key
             </label>
             <div className="flex items-center gap-2">
@@ -264,11 +264,11 @@ export function PlaygroundPage() {
                 value={sandboxKey}
                 onChange={e => setSandboxKey(e.target.value)}
                 placeholder={loadingKey ? 'Loading…' : 'Paste your dpay_test_ key'}
-                className="flex-1 font-mono text-xs px-3 py-2 border border-gray-200 rounded-lg bg-violet-50/40 focus:outline-none focus:border-violet-400 text-gray-800"
+                className="flex-1 font-mono text-xs px-3 py-2 border border-p-line rounded-lg bg-violet-50/40 focus:outline-none focus:border-violet-400 text-p-fg"
               />
             </div>
             {sandboxKey.includes('•') && (
-              <p className="text-[11px] text-amber-600 mt-1 flex items-center gap-1">
+              <p className="text-[11px] text-p-warn mt-1 flex items-center gap-1">
                 <AlertCircle size={11} />
                 Go to API Keys → Sandbox → Rotate Key to reveal your full key, then paste it here.
               </p>
@@ -277,20 +277,20 @@ export function PlaygroundPage() {
 
           {/* Endpoint */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Endpoint</label>
+            <label className="block text-xs font-semibold text-p-muted uppercase tracking-wide mb-1.5">Endpoint</label>
             <div className="flex items-center gap-2 bg-gray-900 rounded-lg px-4 py-2.5">
               <span className={`text-xs font-bold font-mono px-2 py-0.5 rounded border ${methodColor(endpoint.method)}`}>
                 {endpoint.method}
               </span>
               <code className="text-sm text-slate-200 font-mono">{BASE}{endpoint.path}</code>
             </div>
-            <p className="text-xs text-gray-400 mt-1.5">{endpoint.desc}</p>
+            <p className="text-xs text-p-faint mt-1.5">{endpoint.desc}</p>
           </div>
 
           {/* Path params */}
           {endpoint.pathParams.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Path Parameters</label>
+              <label className="block text-xs font-semibold text-p-muted uppercase tracking-wide mb-1.5">Path Parameters</label>
               <div className="space-y-2">
                 {endpoint.pathParams.map(p => (
                   <div key={p} className="flex items-center gap-3">
@@ -300,7 +300,7 @@ export function PlaygroundPage() {
                       value={pathValues[p] || ''}
                       onChange={e => setPathValues(v => ({ ...v, [p]: e.target.value }))}
                       placeholder={`Enter ${p}`}
-                      className="flex-1 text-xs px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-violet-400 font-mono"
+                      className="flex-1 text-xs px-3 py-2 border border-p-line rounded-lg focus:outline-none focus:border-violet-400 font-mono"
                     />
                   </div>
                 ))}
@@ -311,17 +311,17 @@ export function PlaygroundPage() {
           {/* Query params */}
           {(endpoint.queryParams || []).length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Query Parameters</label>
+              <label className="block text-xs font-semibold text-p-muted uppercase tracking-wide mb-1.5">Query Parameters</label>
               <div className="space-y-2">
                 {(endpoint.queryParams || []).map(q => (
                   <div key={q.key} className="flex items-center gap-3">
-                    <code className="w-24 text-xs text-blue-600 font-mono flex-shrink-0">{q.key}</code>
+                    <code className="w-24 text-xs text-p-info font-mono flex-shrink-0">{q.key}</code>
                     <input
                       type="text"
                       value={queryValues[q.key] || ''}
                       onChange={e => setQueryValues(v => ({ ...v, [q.key]: e.target.value }))}
                       placeholder={q.default}
-                      className="flex-1 text-xs px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-violet-400 font-mono"
+                      className="flex-1 text-xs px-3 py-2 border border-p-line rounded-lg focus:outline-none focus:border-violet-400 font-mono"
                     />
                   </div>
                 ))}
@@ -332,15 +332,15 @@ export function PlaygroundPage() {
           {/* Request body */}
           {endpoint.method === 'POST' && (
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Request Body</label>
-              <div className="relative rounded-xl overflow-hidden border border-gray-200">
-                <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-b border-gray-100">
-                  <span className="text-[11px] font-mono text-gray-400">JSON</span>
+              <label className="block text-xs font-semibold text-p-muted uppercase tracking-wide mb-1.5">Request Body</label>
+              <div className="relative rounded-xl overflow-hidden border border-p-line">
+                <div className="flex items-center justify-between px-3 py-1.5 bg-p-panel2 border-b border-p-line">
+                  <span className="text-[11px] font-mono text-p-faint">JSON</span>
                   <button
                     onClick={() => {
                       try { setBody(JSON.stringify(JSON.parse(body), null, 2)) } catch {}
                     }}
-                    className="text-[11px] text-gray-400 hover:text-gray-700 transition"
+                    className="text-[11px] text-p-faint hover:text-p-fg transition"
                   >
                     Format
                   </button>
@@ -350,7 +350,7 @@ export function PlaygroundPage() {
                   onChange={e => setBody(e.target.value)}
                   rows={8}
                   spellCheck={false}
-                  className="w-full px-4 py-3 text-xs font-mono text-gray-800 bg-white focus:outline-none resize-none"
+                  className="w-full px-4 py-3 text-xs font-mono text-p-fg bg-p-panel focus:outline-none resize-none"
                 />
               </div>
             </div>
@@ -359,15 +359,15 @@ export function PlaygroundPage() {
           {/* cURL */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">cURL</label>
+              <label className="text-xs font-semibold text-p-muted uppercase tracking-wide">cURL</label>
               <button
                 onClick={() => copy(curlCommand(), 'curl')}
-                className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-700 transition"
+                className="flex items-center gap-1 text-[11px] text-p-faint hover:text-p-fg transition"
               >
-                {copied === 'curl' ? <><Check size={11} className="text-emerald-500" /> Copied</> : <><Copy size={11} /> Copy</>}
+                {copied === 'curl' ? <><Check size={11} className="text-p-good" /> Copied</> : <><Copy size={11} /> Copy</>}
               </button>
             </div>
-            <pre className="bg-gray-900 rounded-xl p-4 text-[11px] font-mono text-slate-300 overflow-x-auto whitespace-pre">
+            <pre className="bg-gray-900 rounded-xl p-4 text-[11px] font-mono text-p-faint overflow-x-auto whitespace-pre">
               {curlCommand()}
             </pre>
           </div>
@@ -386,7 +386,7 @@ export function PlaygroundPage() {
           {response && (
             <div ref={responseRef}>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Response</label>
+                <label className="text-xs font-semibold text-p-muted uppercase tracking-wide">Response</label>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5">
                     <StatusIcon status={response.status} />
@@ -394,16 +394,16 @@ export function PlaygroundPage() {
                       {response.status || 'Network Error'}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-400">{response.durationMs}ms</span>
+                  <span className="text-xs text-p-faint">{response.durationMs}ms</span>
                   <button
                     onClick={() => copy(prettyJson(response.body), 'response')}
-                    className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-700 transition"
+                    className="flex items-center gap-1 text-[11px] text-p-faint hover:text-p-fg transition"
                   >
-                    {copied === 'response' ? <><Check size={11} className="text-emerald-500" /> Copied</> : <><Copy size={11} /> Copy</>}
+                    {copied === 'response' ? <><Check size={11} className="text-p-good" /> Copied</> : <><Copy size={11} /> Copy</>}
                   </button>
                 </div>
               </div>
-              <div className="rounded-xl overflow-hidden border border-gray-200">
+              <div className="rounded-xl overflow-hidden border border-p-line">
                 <pre className={`p-4 text-xs font-mono overflow-x-auto whitespace-pre-wrap max-h-80 ${
                   response.status >= 200 && response.status < 300 ? 'bg-emerald-950/30 text-emerald-200' : 'bg-red-950/20 text-red-200'
                 }`}>
@@ -416,23 +416,23 @@ export function PlaygroundPage() {
 
         {/* Right — history panel */}
         {showHistory && (
-          <div className="w-64 flex-shrink-0 border-l border-gray-100 overflow-y-auto py-3">
-            <p className="px-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Request History</p>
+          <div className="w-64 flex-shrink-0 border-l border-p-line overflow-y-auto py-3">
+            <p className="px-4 pb-2 text-[10px] font-bold text-p-faint uppercase tracking-widest">Request History</p>
             {history.length === 0 ? (
-              <p className="px-4 text-xs text-gray-400">No requests yet</p>
+              <p className="px-4 text-xs text-p-faint">No requests yet</p>
             ) : history.map(h => (
               <button
                 key={h.id}
                 onClick={() => setResponse({ status: h.status, body: h.response, durationMs: h.durationMs })}
-                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 transition"
+                className="w-full text-left px-4 py-3 hover:bg-p-panel2 border-b border-p-line transition"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`text-[10px] font-bold font-mono px-1 py-0.5 rounded border ${methodColor(h.method)}`}>{h.method}</span>
                   <span className={`text-xs font-bold font-mono ${statusColor(h.status)}`}>{h.status}</span>
-                  <span className="text-[10px] text-gray-400 ml-auto">{h.durationMs}ms</span>
+                  <span className="text-[10px] text-p-faint ml-auto">{h.durationMs}ms</span>
                 </div>
-                <p className="text-[11px] font-mono text-gray-500 truncate">{h.path}</p>
-                <p className="text-[10px] text-gray-300 mt-0.5">{h.ts.toLocaleTimeString()}</p>
+                <p className="text-[11px] font-mono text-p-muted truncate">{h.path}</p>
+                <p className="text-[10px] text-p-faint mt-0.5">{h.ts.toLocaleTimeString()}</p>
               </button>
             ))}
           </div>

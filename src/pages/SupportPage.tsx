@@ -28,8 +28,8 @@ const DEFAULT: any = {
 }
 
 const CONTACT_COLORS: Record<string, { bg: string; icon: string }> = {
-  Mail:          { bg: 'bg-blue-50',    icon: 'text-blue-600' },
-  MessageSquare: { bg: 'bg-emerald-50', icon: 'text-emerald-600' },
+  Mail:          { bg: 'bg-p-info/10',    icon: 'text-p-info' },
+  MessageSquare: { bg: 'bg-p-good/10', icon: 'text-p-good' },
   BookOpen:      { bg: 'bg-violet-50',  icon: 'text-violet-600' },
 }
 
@@ -57,9 +57,9 @@ export function SupportPage() {
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4">
-        <h1 className="text-base font-bold text-gray-900">Support & Help</h1>
-        <p className="text-xs text-gray-400">Get help with your integration</p>
+      <div className="px-4 sm:px-6 pt-6 sm:pt-8 pb-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-p-fg">Support & Help</h1>
+        <p className="text-xs text-p-faint">Get help with your integration</p>
       </div>
 
       <div className="p-4 sm:p-6 space-y-6">
@@ -67,26 +67,26 @@ export function SupportPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {contacts.map((c: any) => {
             const Icon = ICON_MAP[c.icon] ?? Mail
-            const colors = CONTACT_COLORS[c.icon] ?? { bg: 'bg-gray-50', icon: 'text-gray-600' }
+            const colors = CONTACT_COLORS[c.icon] ?? { bg: 'bg-p-panel2', icon: 'text-p-ink2' }
             return (
               <a
                 key={c.id}
                 href={c.action || '#'}
-                className={`block bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow ${c.action ? 'cursor-pointer' : 'cursor-default opacity-70'}`}
+                className={`block bg-p-panel rounded-xl border border-p-line shadow-sm p-5 hover:shadow-md transition-shadow ${c.action ? 'cursor-pointer' : 'cursor-default opacity-70'}`}
               >
                 <div className={`w-9 h-9 rounded-xl ${colors.bg} flex items-center justify-center mb-3`}>
                   <Icon size={16} className={colors.icon} />
                 </div>
-                <p className="text-sm font-semibold text-gray-900">{c.label}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{c.desc}</p>
+                <p className="text-sm font-semibold text-p-fg">{c.label}</p>
+                <p className="text-xs text-p-faint mt-0.5">{c.desc}</p>
               </a>
             )
           })}
         </div>
 
         {/* Resources */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-          <p className="text-sm font-bold text-gray-900 mb-4">Resources</p>
+        <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-5">
+          <p className="text-sm font-bold text-p-fg mb-4">Resources</p>
           <div className="space-y-2">
             {resources.map((r: any) => {
               const Icon = ICON_MAP[r.icon] ?? FileText
@@ -95,17 +95,17 @@ export function SupportPage() {
                 <a
                   key={r.id}
                   href={r.href || '#'}
-                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group ${!hasHref ? 'opacity-60 cursor-default' : ''}`}
+                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-p-panel2 transition-colors group ${!hasHref ? 'opacity-60 cursor-default' : ''}`}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-50 transition-colors">
-                    <Icon size={14} className="text-gray-500 group-hover:text-emerald-600 transition-colors" />
+                  <div className="w-8 h-8 rounded-lg bg-p-panel2 flex items-center justify-center flex-shrink-0 group-hover:bg-p-good/10 transition-colors">
+                    <Icon size={14} className="text-p-muted group-hover:text-p-good transition-colors" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{r.label}</p>
-                    <p className="text-xs text-gray-400">{r.desc}</p>
+                    <p className="text-sm font-medium text-p-fg">{r.label}</p>
+                    <p className="text-xs text-p-faint">{r.desc}</p>
                   </div>
                   {hasHref
-                    ? <ExternalLink size={12} className="text-gray-300 group-hover:text-gray-500 transition-colors flex-shrink-0" />
+                    ? <ExternalLink size={12} className="text-p-faint group-hover:text-p-muted transition-colors flex-shrink-0" />
                     : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500">SOON</span>
                   }
                 </a>
@@ -115,13 +115,13 @@ export function SupportPage() {
         </div>
 
         {/* FAQ */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-          <p className="text-sm font-bold text-gray-900 mb-4">Frequently Asked Questions</p>
+        <div className="bg-p-panel rounded-xl border border-p-line shadow-sm p-5">
+          <p className="text-sm font-bold text-p-fg mb-4">Frequently Asked Questions</p>
           <div className="space-y-4">
             {faq.map((item: any, i: number) => (
-              <div key={item.id} className={`pb-4 ${i < faq.length - 1 ? 'border-b border-gray-50' : ''}`}>
-                <p className="text-sm font-semibold text-gray-800 mb-1">{item.q}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{item.a}</p>
+              <div key={item.id} className={`pb-4 ${i < faq.length - 1 ? 'border-b border-p-line' : ''}`}>
+                <p className="text-sm font-semibold text-p-fg mb-1">{item.q}</p>
+                <p className="text-xs text-p-muted leading-relaxed">{item.a}</p>
               </div>
             ))}
           </div>
@@ -129,7 +129,7 @@ export function SupportPage() {
 
         {footer && (
           <div className="text-center pb-4">
-            <p className="text-xs text-gray-400">{footer}</p>
+            <p className="text-xs text-p-faint">{footer}</p>
           </div>
         )}
       </div>

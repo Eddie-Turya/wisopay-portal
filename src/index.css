@@ -5,7 +5,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: 'Inter Tight', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Geist', 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,20 +42,36 @@ body {
 @keyframes auth-pulse { 0% { box-shadow: 0 0 0 0 rgba(14,185,129,.6); } 70% { box-shadow: 0 0 0 6px rgba(14,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(14,185,129,0); } }
 @media (prefers-reduced-motion: reduce) { .auth-up, .auth-glow, .auth-float, .auth-dot { animation: none; } }
 
-/* ── Portal theme tokens ─────────────────────────── */
+/* ── Portal theme tokens (ZawaPay design, WisoPay green) ──
+   --p-*  : hex, for direct var() use (SVG strokes etc.)
+   --pc-* : RGB channels, so Tailwind opacity modifiers (bg-p-good/10) work */
 :root {
-  --p-bg: #f7f8fa; --p-surface: #ffffff; --p-soft: #f2f4f6; --p-line: #e8eaee;
-  --p-ink: #16181b; --p-ink2: #3d4248; --p-mute: #6f757c;
+  --p-bg: #f6f6f7; --p-surface: #ffffff; --p-soft: #f2f2f4; --p-line: #e6e6ea;
+  --p-ink: #0c0c0e; --p-ink2: #3a3a42; --p-mute: #55555e; --p-faint: #8c8c96;
+  --p-accent: #0eb981; --p-accent-ink: #03140d; --p-series: #0eb981;
+  --p-good: #16a34a; --p-warn: #b97700; --p-bad: #dc2626; --p-info: #2a78d6;
   --p-green-ink: #067a55; --p-green-soft: #e4f8ef;
+  --pc-bg: 246 246 247; --pc-panel: 255 255 255; --pc-panel2: 242 242 244; --pc-line: 230 230 234;
+  --pc-fg: 12 12 14; --pc-ink2: 58 58 66; --pc-muted: 85 85 94; --pc-faint: 140 140 150;
+  --pc-accent: 14 185 129; --pc-accent-ink: 3 20 13; --pc-series: 14 185 129;
+  --pc-good: 22 163 74; --pc-warn: 185 119 0; --pc-bad: 220 38 38; --pc-info: 42 120 214;
 }
 html.dark {
-  --p-bg: #0b0c0e; --p-surface: #141619; --p-soft: #1b1e22; --p-line: #25282d;
-  --p-ink: #f2f3f5; --p-ink2: #c9ccd1; --p-mute: #8d929a;
+  --p-bg: #0b0b0c; --p-surface: #141416; --p-soft: #1c1c1f; --p-line: #27272b;
+  --p-ink: #f4f4f5; --p-ink2: #d4d4d8; --p-mute: #a6a6b0; --p-faint: #6f6f7a;
+  --p-accent: #10c48a; --p-accent-ink: #03140d; --p-series: #34d399;
+  --p-good: #4ade80; --p-warn: #fbbf24; --p-bad: #f87171; --p-info: #60a5fa;
   --p-green-ink: #4fd9a8; --p-green-soft: rgba(14,185,129,.14);
+  --pc-bg: 11 11 12; --pc-panel: 20 20 22; --pc-panel2: 28 28 31; --pc-line: 39 39 43;
+  --pc-fg: 244 244 245; --pc-ink2: 212 212 216; --pc-muted: 166 166 176; --pc-faint: 111 111 122;
+  --pc-accent: 16 196 138; --pc-accent-ink: 3 20 13; --pc-series: 52 211 153;
+  --pc-good: 74 222 128; --pc-warn: 251 191 36; --pc-bad: 248 113 113; --pc-info: 96 165 250;
 }
+body { background: var(--p-bg); color: var(--p-ink); }
+::selection { background: rgba(14,185,129,.2); }
 .p-fade { animation: auth-up .45s cubic-bezier(.2,.7,.2,1) both; }
-.p-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-.p-scroll::-webkit-scrollbar-thumb { background: var(--p-line); border-radius: 8px; }
+.p-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.p-scroll::-webkit-scrollbar-thumb { background: var(--p-line); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
 
 /* Dark pass for pages still written with light Tailwind utilities */
 html.dark .p-main .bg-white { background-color: var(--p-surface) !important; }

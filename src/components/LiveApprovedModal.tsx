@@ -28,7 +28,7 @@ export function LiveApprovedModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }}>
-      <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <div className="relative bg-p-panel rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-300">
 
         {/* Green celebration header */}
         <div className="bg-gradient-to-br from-emerald-500 to-teal-600 px-8 pt-10 pb-16 text-center relative overflow-hidden">
@@ -47,15 +47,15 @@ export function LiveApprovedModal() {
 
         {/* Overlapping card */}
         <div className="px-8 -mt-8 relative z-10">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 divide-y divide-gray-100">
+          <div className="bg-p-panel rounded-2xl shadow-lg border border-p-line divide-y divide-p-line">
             {[
               'Accept real customer payments',
               'Live API keys now active',
               'Settlements enabled to your account',
             ].map(item => (
               <div key={item} className="flex items-center gap-3 px-5 py-3.5">
-                <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0" />
-                <span className="text-sm text-gray-700 font-medium">{item}</span>
+                <CheckCircle2 size={16} className="text-p-good flex-shrink-0" />
+                <span className="text-sm text-p-ink2 font-medium">{item}</span>
               </div>
             ))}
           </div>
@@ -64,13 +64,13 @@ export function LiveApprovedModal() {
         {/* Actions */}
         <div className="px-8 py-6 flex flex-col gap-3">
           <button onClick={goLive}
-            className="w-full flex items-center justify-center gap-2 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors shadow-lg shadow-emerald-500/30">
+            className="w-full flex items-center justify-center gap-2 py-3.5 bg-p-accent hover:bg-p-accent text-p-accent-ink font-bold rounded-xl transition-colors shadow-lg shadow-emerald-500/30">
             <Zap size={16} />
             Switch to Live Mode
             <ArrowRight size={16} />
           </button>
           <button onClick={dismiss}
-            className="w-full py-3 text-sm text-gray-400 hover:text-gray-600 font-medium transition-colors">
+            className="w-full py-3 text-sm text-p-faint hover:text-p-fg font-medium transition-colors">
             Stay in Sandbox for now
           </button>
         </div>

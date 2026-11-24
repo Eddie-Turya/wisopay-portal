@@ -48,9 +48,9 @@ function timeAgo(iso: string) {
 
 const STATUS: Record<string, { label: string; cls: string; bar: string }> = {
   COMPLETED: { label: 'Completed', cls: 'bg-p-green-soft text-p-green-ink', bar: 'bg-p-green' },
-  PROCESSING: { label: 'Processing', cls: 'bg-sky-500/10 text-sky-600 dark:text-sky-300', bar: 'bg-sky-400' },
-  PENDING: { label: 'Pending', cls: 'bg-amber-400/15 text-amber-600 dark:text-amber-300', bar: 'bg-amber-400' },
-  FAILED: { label: 'Failed', cls: 'bg-red-500/10 text-red-600 dark:text-red-300', bar: 'bg-red-400' },
+  PROCESSING: { label: 'Processing', cls: 'bg-sky-500/10 text-p-info dark:text-sky-300', bar: 'bg-sky-400' },
+  PENDING: { label: 'Pending', cls: 'bg-amber-400/15 text-p-warn dark:text-amber-300', bar: 'bg-amber-400' },
+  FAILED: { label: 'Failed', cls: 'bg-red-500/10 text-p-bad dark:text-red-300', bar: 'bg-red-400' },
   CANCELLED: { label: 'Cancelled', cls: 'bg-p-soft text-p-mute', bar: 'bg-p-mute' },
   REFUNDED: { label: 'Refunded', cls: 'bg-violet-500/10 text-violet-600 dark:text-violet-300', bar: 'bg-violet-400' },
 }
@@ -78,7 +78,7 @@ function Sk({ className = '' }: { className?: string }) {
 }
 
 function Card({ className = '', children }: { className?: string; children: React.ReactNode }) {
-  return <section className={`rounded-[22px] border border-p-line bg-p-surface ${className}`}>{children}</section>
+  return <section className={`rounded-2xl border border-p-line bg-p-surface ${className}`}>{children}</section>
 }
 
 function Segmented<T extends string | number>({ value, options, onChange, label }: { value: T; options: { v: T; t: string }[]; onChange: (v: T) => void; label: string }) {
@@ -129,13 +129,13 @@ function VolumeChart({ days }: { days: Day[] }) {
           <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
             <defs>
               <linearGradient id="dashFill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0" stopColor="#0eb981" stopOpacity=".28" />
-                <stop offset="1" stopColor="#0eb981" stopOpacity="0" />
+                <stop offset="0" stopColor="var(--p-series)" stopOpacity=".28" />
+                <stop offset="1" stopColor="var(--p-series)" stopOpacity="0" />
               </linearGradient>
             </defs>
             {ticks.map(t => <line key={t} x1="0" x2={W} y1={H - t * H} y2={H - t * H} stroke="var(--p-line)" strokeDasharray="4 6" vectorEffect="non-scaling-stroke" />)}
             <path d={`${line} L${W},${H} L0,${H} Z`} fill="url(#dashFill)" className="p-fade" />
-            <path d={line} fill="none" stroke="#0eb981" strokeWidth="2.5" vectorEffect="non-scaling-stroke" pathLength={1} className="dash-draw" />
+            <path d={line} fill="none" stroke="var(--p-series)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" pathLength={1} className="dash-draw" />
           </svg>
           {h && (
             <>
@@ -208,7 +208,7 @@ export function DashboardPage() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-[1400px] space-y-6 p-4 sm:p-8">
+      <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-6 sm:px-6 sm:py-8">
         {isSandbox && liveEnabled && !bannerHidden && (
           <div className="p-fade flex items-center gap-4 rounded-[20px] border border-p-green/30 bg-p-green-soft px-5 py-4">
             <PartyPopper size={22} className="flex-shrink-0 text-p-green-ink" />
@@ -222,7 +222,7 @@ export function DashboardPage() {
         )}
         {isSandbox && !liveEnabled && (
           <div className="p-fade flex items-center gap-4 rounded-[20px] border border-amber-400/30 bg-amber-400/10 px-5 py-4">
-            <FlaskConical size={20} className="flex-shrink-0 text-amber-600 dark:text-amber-300" />
+            <FlaskConical size={20} className="flex-shrink-0 text-p-warn dark:text-amber-300" />
             <p className="text-sm text-p-ink2"><span className="font-semibold text-p-ink">You're in test mode.</span> Payments are simulated. Live payments unlock once we've verified your business documents.</p>
           </div>
         )}
@@ -231,14 +231,14 @@ export function DashboardPage() {
 
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-[32px] font-semibold leading-tight tracking-[-0.02em] text-p-ink">Overview</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-p-ink">Overview</h1>
             <p className="mt-1 text-p-mute">Welcome back, {merchant.name || 'there'}</p>
           </div>
           <div className="flex flex-wrap gap-2.5">
-            <Link to="/collect" className="inline-flex h-11 items-center gap-2 rounded-xl border border-p-line bg-p-surface px-4 text-sm font-medium text-p-ink transition hover:bg-p-soft">
+            <Link to="/collect" className="inline-flex h-10 items-center gap-2 rounded-xl border border-p-line bg-p-surface px-4 text-sm font-medium text-p-ink transition hover:bg-p-soft">
               <Smartphone size={16} /> Collect payment
             </Link>
-            <Link to="/payment-links" className="inline-flex h-11 items-center gap-2 rounded-xl bg-p-green px-4 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(14,185,129,.28)] transition hover:bg-p-green-hover">
+            <Link to="/payment-links" className="inline-flex h-10 items-center gap-2 rounded-xl bg-p-accent px-4 text-sm font-semibold text-p-accent-ink transition hover:brightness-95">
               <Link2 size={16} /> Create payment link
             </Link>
           </div>
@@ -256,7 +256,7 @@ export function DashboardPage() {
                 {
                   k: 'Volume', v: tzs(vol),
                   sub: change === null ? <span className="text-p-green-ink">New this period</span>
-                    : <span className={`inline-flex items-center gap-1 ${change >= 0 ? 'text-p-green-ink' : 'text-red-500'}`}>{change >= 0 ? <ArrowUp size={13} /> : <ArrowDown size={13} />}{Math.abs(change)}% vs previous {range}d</span>,
+                    : <span className={`inline-flex items-center gap-1 ${change >= 0 ? 'text-p-green-ink' : 'text-p-bad'}`}>{change >= 0 ? <ArrowUp size={13} /> : <ArrowDown size={13} />}{Math.abs(change)}% vs previous {range}d</span>,
                 },
                 { k: 'Transactions', v: done.toLocaleString('en-US'), sub: <span className="text-p-mute">Successful only</span> },
                 { k: 'Success rate', v: `${rate}%`, sub: <span className="text-p-mute">{total.toLocaleString('en-US')} attempts</span> },
@@ -292,7 +292,7 @@ export function DashboardPage() {
               </dl>
             </div>
             <div className="mt-auto pt-6">
-              <Link to="/collect" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-p-green text-sm font-semibold text-white transition hover:bg-p-green-hover">
+              <Link to="/collect" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-p-accent text-sm font-semibold text-p-accent-ink transition hover:brightness-95">
                 <Smartphone size={16} /> Collect a payment
               </Link>
               <Link to="/account" className="mt-3 flex items-center justify-center gap-1.5 text-sm text-p-ink2 transition-colors hover:text-p-ink">
