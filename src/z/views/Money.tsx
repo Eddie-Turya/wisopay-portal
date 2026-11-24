@@ -274,8 +274,6 @@ export function Balances() {
 
 /* ================= Settlements ================= */
 
-const WITHDRAW_MIN = 10_000;
-
 export function Settlements() {
   const live = useLive();
   const { settlements, now, balances } = live;
@@ -284,6 +282,9 @@ export function Settlements() {
   const params = useSearchParams();
   const { verified } = useAccount();
   const accounts = useApi<{ data: { id: string; label: string; isDefault: boolean; details: { masked: string; holderName?: string } }[] }>("/dashboard/payout-accounts");
+  const terms = useApi<{ fee: number; min: number }>("/dashboard/withdrawal-terms");
+  const WITHDRAW_MIN = terms.data?.min ?? 10_000;
+  const FEE = terms.data?.fee ?? 1_500;
   const def = accounts.data?.data.find((a) => a.isDefault);
   const available = balances.reduce((s, b) => s + (b.currency === "TZS" ? b.available : 0), 0);
   const withdrawOpen = params.get("withdraw") === "1";
@@ -389,7 +390,10 @@ export function Settlements() {
               {settlements.map((s) => (
                 <tr key={s.id} className={trHover}>
                   <td className={cx(td, "tabular-nums")}>{date(s.date, false)}</td>
-                  <td className={cx(td, "font-medium tabular-nums")}>{money(s.amount, s.currency)}</td>
+                  <td className={cx(td, "font-medium tabular-nums")}>
+                    {money(s.amount, s.currency)}
+                    {!!s.fee && <span className="block text-xs font-normal text-p-faint">{tr("receive")} {money(s.payout ?? s.amount - s.fee, s.currency)} · {tr("fee")} {money(s.fee, s.currency)}</span>}
+                  </td>
                   <td className={td}>
                     <Status s={s.status} />
                   </td>
@@ -433,7 +437,7 @@ export function Settlements() {
             <p className="text-xs text-p-muted">{tr("Available to withdraw")}</p>
             <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">{money(available, "TZS")}</p>
           </div>
-          <Field label={tr("Amount (TZS)")} hint={amountError || `Minimum ${money(WITHDRAW_MIN, "TZS")}. No fee.`}>
+          <Field label={tr("Amount (TZS)")} hint={amountError || `Minimum ${money(WITHDRAW_MIN, "TZS")}. A ${money(FEE, "TZS")} fee is taken from the amount.`}>
             <div className="flex gap-2">
               <Input autoFocus inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d,]/g, ""))} placeholder="50,000" className={amountError ? "border-p-bad" : ""} />
               <Button type="button" onClick={() => setAmount(String(Math.max(0, Math.floor(available))))}>{tr("Max")}</Button>
@@ -456,6 +460,13 @@ export function Settlements() {
                 <Plus className="h-3.5 w-3.5" /> {tr("Add payout account")}
               </Link>
             </div>
+          )}
+          {amt > 0 && !amountError && (
+            <dl className="space-y-1.5 rounded-xl border border-p-line p-4 text-sm">
+              <div className="flex justify-between"><dt className="text-p-muted">{tr("From your balance")}</dt><dd className="tabular-nums">{money(amt, "TZS")}</dd></div>
+              <div className="flex justify-between"><dt className="text-p-muted">{tr("Withdrawal fee")}</dt><dd className="tabular-nums">− {money(FEE, "TZS")}</dd></div>
+              <div className="flex justify-between border-t border-p-line pt-1.5 font-semibold"><dt>{tr("You'll receive")}</dt><dd className="tabular-nums">{money(Math.max(0, amt - FEE), "TZS")}</dd></div>
+            </dl>
           )}
           <Field label={tr("Note (optional)")}>
             <Input value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} placeholder={tr("e.g. November payout")} />

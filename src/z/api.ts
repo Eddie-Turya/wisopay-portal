@@ -240,6 +240,7 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
           destination: x.destination ? `${x.destination.label} ${x.destination.account}` : '—',
           status: WD_STATUS[x.status] ?? x.status, createdAt: x.createdAt,
           reference: x.reference ?? null, note: x.note ?? null, adminNote: x.adminNote ?? null,
+          fee: Number(x.fee ?? 0), payout: Number(x.payout ?? x.amount ?? 0),
         })),
       })
     }
@@ -266,6 +267,11 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
       if (sub === 'default') return R(await wiso('POST', `/payout-accounts/${id}/default`, {}))
       if (method === 'DELETE') return R(await wiso('DELETE', `/payout-accounts/${id}`))
       throw soon('This payout account action')
+    }
+
+    case 'withdrawal-terms': {
+      const s = await wiso('GET', '/settlements').catch(() => ({}))
+      return R({ fee: Number(s.withdrawalFee ?? 1500), min: Number(s.minWithdrawal ?? 10000) })
     }
 
     case 'withdrawals': {
