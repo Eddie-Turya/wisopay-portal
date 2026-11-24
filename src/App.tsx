@@ -1,21 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { LoginPage } from './pages/LoginPage'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { SignupPage } from './pages/SignupPage'
 import { VerifyEmailPage } from './pages/VerifyEmailPage'
-import { DashboardPage } from './pages/DashboardPage'
-import { PaymentsPage } from './pages/PaymentsPage'
 import { APIKeysPage } from './pages/APIKeysPage'
 import { WebhooksPage } from './pages/WebhooksPage'
 import { PlaygroundPage } from './pages/PlaygroundPage'
 import { CollectPage } from './pages/CollectPage'
 import { AccountPage } from './pages/AccountPage'
-import { DisbursementPage } from './pages/DisbursementPage'
 import { BulkPage } from './pages/BulkPage'
 import { PaymentDetailPage } from './pages/PaymentDetailPage'
 import { PaymentLinksPage } from './pages/PaymentLinksPage'
 import { TeamPage } from './pages/TeamPage'
-import { AnalyticsPage } from './pages/AnalyticsPage'
-import { CustomersPage } from './pages/CustomersPage'
 import { AuditLogPage } from './pages/AuditLogPage'
 import { SupportPage } from './pages/SupportPage'
 import { InvoicesPage } from './pages/InvoicesPage'
@@ -24,10 +18,18 @@ import { InvoiceDetailPage } from './pages/InvoiceDetailPage'
 import BillSplitPage from './pages/BillSplitPage'
 import { EnvProvider } from './context/EnvContext'
 import { ThemeProvider } from './context/ThemeContext'
-import { api } from './api'
+// ZawaPay design (src/z): shell and pages
+import { Shell } from './z/Shell'
+import { Login } from './z/views/Login'
+import { Home } from './z/views/Overview'
+import { Payments } from './z/views/Payments'
+import { Payouts } from './z/views/Payouts'
+import { Analytics, Balances, Settlements } from './z/views/Money'
+import { Customers } from './z/views/GetPaid'
+import { Developers, SettingsView } from './z/views/Account'
 
-function Guard({ children }: { children: React.ReactNode }) {
-  return api.isLoggedIn() ? <>{children}</> : <Navigate to="/login" replace />
+function Signed() {
+  return <Shell><Outlet /></Shell>
 }
 
 export default function App() {
@@ -36,31 +38,42 @@ export default function App() {
     <EnvProvider>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/dashboard" element={<Guard><DashboardPage /></Guard>} />
-        <Route path="/payments" element={<Guard><PaymentsPage /></Guard>} />
-        <Route path="/api-keys" element={<Guard><APIKeysPage /></Guard>} />
-        <Route path="/webhooks" element={<Guard><WebhooksPage /></Guard>} />
-        <Route path="/collect" element={<Guard><CollectPage /></Guard>} />
-        <Route path="/playground" element={<Guard><PlaygroundPage /></Guard>} />
-        <Route path="/account" element={<Guard><AccountPage /></Guard>} />
-        <Route path="/disbursement" element={<Guard><DisbursementPage /></Guard>} />
-        <Route path="/bulk" element={<Guard><BulkPage /></Guard>} />
-        <Route path="/payments/:id" element={<Guard><PaymentDetailPage /></Guard>} />
-        <Route path="/payment-links" element={<Guard><PaymentLinksPage /></Guard>} />
-        <Route path="/team" element={<Guard><TeamPage /></Guard>} />
-        <Route path="/analytics" element={<Guard><AnalyticsPage /></Guard>} />
-        <Route path="/customers" element={<Guard><CustomersPage /></Guard>} />
-        <Route path="/audit" element={<Guard><AuditLogPage /></Guard>} />
-        <Route path="/support" element={<Guard><SupportPage /></Guard>} />
-        <Route path="/invoices" element={<Guard><InvoicesPage /></Guard>} />
-        <Route path="/invoices/new" element={<Guard><InvoiceFormPage /></Guard>} />
-        <Route path="/invoices/:id" element={<Guard><InvoiceDetailPage /></Guard>} />
-        <Route path="/bill-splits" element={<Guard><BillSplitPage /></Guard>} />
-        <Route path="/invoices/:id/edit" element={<Guard><InvoiceFormPage /></Guard>} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+        <Route element={<Signed />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Navigate to="/" replace />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/payments" element={<Payments />} />
+          <Route path="/payments/:id" element={<PaymentDetailPage />} />
+          <Route path="/payouts" element={<Payouts />} />
+          <Route path="/disbursement" element={<Navigate to="/payouts" replace />} />
+          <Route path="/balances" element={<Balances />} />
+          <Route path="/settlements" element={<Settlements />} />
+          <Route path="/collect" element={<CollectPage />} />
+          <Route path="/payment-links" element={<PaymentLinksPage />} />
+          <Route path="/invoices" element={<InvoicesPage />} />
+          <Route path="/invoices/new" element={<InvoiceFormPage />} />
+          <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+          <Route path="/invoices/:id/edit" element={<InvoiceFormPage />} />
+          <Route path="/bill-splits" element={<BillSplitPage />} />
+          <Route path="/bulk" element={<BulkPage />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/developers" element={<Developers />} />
+          <Route path="/settings" element={<SettingsView />} />
+          {/* Older WisoPay pages, still reachable from search (⌘K) and links */}
+          <Route path="/api-keys" element={<APIKeysPage />} />
+          <Route path="/webhooks" element={<WebhooksPage />} />
+          <Route path="/playground" element={<PlaygroundPage />} />
+          <Route path="/audit" element={<AuditLogPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/support" element={<SupportPage />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
     </EnvProvider>

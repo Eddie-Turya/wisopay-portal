@@ -31,6 +31,8 @@ export default {
           'green-soft': 'var(--p-green-soft)',
         },
       },
+      opacity: { 8: '0.08', 12: '0.12', 14: '0.14' },
+      minWidth: { 4: '1rem', 5: '1.25rem' },
       fontFamily: {
         sans: ['Geist', 'Inter Tight', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
         mono: ['Geist Mono', 'JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],

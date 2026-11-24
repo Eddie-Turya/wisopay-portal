@@ -8,7 +8,7 @@ function initial(): Theme {
     const saved = localStorage.getItem(KEY)
     if (saved === 'light' || saved === 'dark') return saved
   } catch { /* storage blocked */ }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'dark'
 }
 
 const Ctx = createContext<{ theme: Theme; toggle: () => void }>({ theme: 'light', toggle: () => {} })
