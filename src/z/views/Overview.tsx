@@ -2,7 +2,7 @@ import { tr } from "../i18n";
 
 import Link from "../next";
 import { useMemo, useState } from "react";
-import { ArrowRight, Link2, Info, Smartphone } from "lucide-react";
+import { ArrowRight, ArrowUpFromLine, Link2, Info, Smartphone } from "lucide-react";
 import { compact, date, inUSD, money, usd } from "../data";
 import { dailySeries, totalUSD, useLive, useNetworkVolume } from "../live";
 import { AreaChart, BarList } from "../charts";
@@ -104,14 +104,14 @@ export function Overview() {
 
         {/* Balance card */}
         <div className="grid grid-cols-1 gap-4">
-          <Card title={tr("Payouts & balance")}>
+          <Card title={tr("Balance")}>
             <div className="rounded-xl bg-p-panel2 p-4">
-              <p className="text-xs text-p-muted">{tr("Available to pay out")}</p>
+              <p className="text-xs text-p-muted">{tr("Available to withdraw")}</p>
               <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">{usd(totalUSD(balances, "available"))}</p>
-              <p className="text-xs text-p-faint tabular-nums">+ {usd(totalUSD(balances, "pending"))} {tr("held for payouts · all wallets")}</p>
+              <p className="text-xs text-p-faint tabular-nums">+ {usd(totalUSD(balances, "pending"))} {tr("held for withdrawals")}</p>
               <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <dt className="text-p-faint">{next ? tr("Latest settlement") : tr("Settlements")}</dt>
+                  <dt className="text-p-faint">{next ? tr("Latest withdrawal") : tr("Withdrawals")}</dt>
                   <dd className="mt-0.5 font-medium">{next ? date(next.date) : tr("None yet")}</dd>
                 </div>
                 <div>
@@ -119,14 +119,14 @@ export function Overview() {
                   <dd className="mt-0.5 font-medium tabular-nums">{next ? money(next.amount, next.currency) : "—"}</dd>
                 </div>
                 <div className="col-span-2">
-                  <dt className="text-p-faint">{tr("Settles to")}</dt>
-                  <dd className="mt-0.5 font-medium">{next?.bank ?? "Your registered settlement account"}</dd>
+                  <dt className="text-p-faint">{tr("Sent to")}</dt>
+                  <dd className="mt-0.5 font-medium">{next?.bank ?? "Add a payout account in Settings"}</dd>
                 </div>
               </dl>
             </div>
-            <Link href="/portal/collect" className="mt-4 block">
+            <Link href="/portal/settlements?withdraw=1" className="mt-4 block">
               <Button variant="primary" className="w-full">
-                <Smartphone className="h-4 w-4" /> {tr("Collect a payment")}
+                <ArrowUpFromLine className="h-4 w-4" /> {tr("Withdraw")}
               </Button>
             </Link>
             <Link href="/portal/balances" className="mt-3 flex items-center justify-center gap-1 text-[13px] text-p-muted hover:text-p-fg">

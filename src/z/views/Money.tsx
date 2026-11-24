@@ -1,13 +1,15 @@
 import { tr } from "../i18n";
 
-import Link from "../next";
+import Link, { useRouter, useSearchParams } from "../next";
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowLeftRight, ArrowUp, ArrowUpDown, CalendarClock, Download, Landmark, Pencil } from "lucide-react";
+import { ArrowDown, ArrowLeftRight, ArrowUp, ArrowUpDown, ArrowUpFromLine, CalendarClock, Download, Landmark, Pencil, Plus, X } from "lucide-react";
 import { compact, date, download, money, toCSV, toTZS, inUSD, usd } from "../data";
 import { dailySeries, useApi, useLive, useNetworkVolume } from "../live";
 import { AreaChart, BarList, Bars } from "../charts";
 import { ProviderMark } from "../ProviderMark";
-import { Button, Card, CurrencyCard, Drawer, Field, Input, Modal, NetworkDot, PageHeader, Segmented, Select, Stat, Status, cx, td, th, trHover } from "../ui";
+import { Button, Card, CurrencyCard, Drawer, Field, Input, Modal, NetworkDot, PageHeader, Segmented, Select, Stat, Status, cx, td, th, trHover, useToast } from "../ui";
+import { api, ApiError } from "../api";
+import { useAccount } from "../account";
 
 /* ================= Balances ================= */
 
@@ -272,10 +274,55 @@ export function Balances() {
 
 /* ================= Settlements ================= */
 
+const WITHDRAW_MIN = 10_000;
+
 export function Settlements() {
-  const { settlements, now } = useLive();
-  const accounts = useApi<{ data: { id: string; label: string; isDefault: boolean; details: { masked: string } }[] }>("/dashboard/payout-accounts");
+  const live = useLive();
+  const { settlements, now, balances } = live;
+  const toast = useToast();
+  const router = useRouter();
+  const params = useSearchParams();
+  const { verified } = useAccount();
+  const accounts = useApi<{ data: { id: string; label: string; isDefault: boolean; details: { masked: string; holderName?: string } }[] }>("/dashboard/payout-accounts");
   const def = accounts.data?.data.find((a) => a.isDefault);
+  const available = balances.reduce((s, b) => s + (b.currency === "TZS" ? b.available : 0), 0);
+  const withdrawOpen = params.get("withdraw") === "1";
+  const setWithdrawOpen = (v: boolean) => router.replace(v ? "/portal/settlements?withdraw=1" : "/portal/settlements", { scroll: false });
+  const [amount, setAmount] = useState("");
+  const [acctId, setAcctId] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [cancel, setCancel] = useState<string | null>(null);
+  const amt = Number(amount.replace(/[^\d]/g, "")) || 0;
+  const chosen = acctId || def?.id || "";
+  const amountError = !amount ? "" : amt < WITHDRAW_MIN ? `The minimum is ${money(WITHDRAW_MIN, "TZS")}` : amt > available ? `That's more than your available ${money(available, "TZS")}` : "";
+
+  const requestWithdrawal = async () => {
+    setBusy(true);
+    try {
+      await api("/dashboard/withdrawals", { body: { amount: amt, payoutAccountId: chosen, note: note.trim() || undefined } });
+      setWithdrawOpen(false);
+      setAmount("");
+      setNote("");
+      toast(`Withdrawal of ${money(amt, "TZS")} requested — we'll let you know when it's sent`);
+      void live.reload();
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : "Couldn’t request the withdrawal", "bad");
+    }
+    setBusy(false);
+  };
+  const cancelWithdrawal = async (id: string) => {
+    setBusy(true);
+    try {
+      await api(`/dashboard/withdrawals/${id}/cancel`, { body: {} });
+      setCancel(null);
+      toast(tr("Withdrawal cancelled — the money is back in your balance"), "info");
+      void live.reload();
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : "Couldn’t cancel the withdrawal", "bad");
+    }
+    setBusy(false);
+  };
   const paid30 = settlements.filter((s) => s.status === "paid" && s.date > now - 30 * 86_400_000);
   const pending = settlements.filter((s) => s.status === "scheduled" || s.status === "in_transit");
 
@@ -283,20 +330,25 @@ export function Settlements() {
     <>
       <PageHeader
         title={tr("Settlements")}
-        sub={tr("Transfers from your WisoPay balance to your bank or wallet.")}
+        sub={tr("Withdraw your WisoPay balance to your bank or mobile money account.")}
         actions={
+          <>
+          <Button variant="primary" disabled={!verified} title={verified ? undefined : tr("Withdrawals open once your account is live")} onClick={() => setWithdrawOpen(true)}>
+            <ArrowUpFromLine className="h-4 w-4" /> {tr("Withdraw")}
+          </Button>
           <Button onClick={() => download("wisopay-settlements.csv", toCSV(settlements.map((s) => ({ id: s.id, date: new Date(s.date).toISOString(), amount: s.amount, currency: s.currency, payments: s.count, destination: s.bank, status: s.status }))))}>
             <Download className="h-4 w-4" /> {tr("Export")}
           </Button>
+          </>
         }
       />
       <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-p-line bg-p-panel p-5">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-[13px] text-p-muted">{tr("Schedule")}</p>
+              <p className="text-[13px] text-p-muted">{tr("Available to withdraw")}</p>
               <p className="mt-2 flex items-center gap-2 text-lg font-semibold">
-                <CalendarClock className="h-5 w-5 text-p-faint" /> {tr("On request")}
+                <CalendarClock className="h-5 w-5 text-p-faint" /> {money(available, "TZS")}
               </p>
               <p className="mt-1 flex items-center gap-1.5 text-xs text-p-faint">
                 <Landmark className="h-3.5 w-3.5" /> {def ? `${def.label} ${def.details.masked}` : tr("No payout account yet")}
@@ -309,8 +361,8 @@ export function Settlements() {
             </Link>
           </div>
         </div>
-        <Stat label={tr("Settled · 30 days")} value={usd(paid30.reduce((s, x) => s + inUSD(x.amount, x.currency), 0))} sub={`${paid30.length} transfers`} />
-        <Stat label={tr("In progress")} value={usd(pending.reduce((s, x) => s + inUSD(x.amount, x.currency), 0))} sub={`${pending.length} settlements`} />
+        <Stat label={tr("Withdrawn · 30 days")} value={usd(paid30.reduce((s, x) => s + inUSD(x.amount, x.currency), 0))} sub={`${paid30.length} transfers`} />
+        <Stat label={tr("In progress")} value={usd(pending.reduce((s, x) => s + inUSD(x.amount, x.currency), 0))} sub={`${pending.length} ${pending.length === 1 ? "withdrawal" : "withdrawals"} awaiting payment`} />
       </div>
 
       <Card pad={false}>
@@ -321,7 +373,7 @@ export function Settlements() {
                 <th className={th}>{tr("Date")}</th>
                 <th className={th}>{tr("Amount")}</th>
                 <th className={th}>{tr("Status")}</th>
-                <th className={cx(th, "hidden md:table-cell")}>{tr("Payments")}</th>
+                <th className={cx(th, "hidden md:table-cell")}>{tr("Reference")}</th>
                 <th className={cx(th, "hidden sm:table-cell")}>{tr("Destination")}</th>
                 <th className={cx(th, "hidden lg:table-cell text-right")}>{tr("ID")}</th>
               </tr>
@@ -330,7 +382,7 @@ export function Settlements() {
               {settlements.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center text-sm text-p-muted">
-                    {tr("No settlements yet. Once you’re live, ask us to settle your balance to your payout account.")}
+                    {tr("No withdrawals yet. Once you’re live, use Withdraw to send your balance to your payout account.")}
                   </td>
                 </tr>
               )}
@@ -341,9 +393,20 @@ export function Settlements() {
                   <td className={td}>
                     <Status s={s.status} />
                   </td>
-                  <td className={cx(td, "hidden text-p-muted tabular-nums md:table-cell")}>{s.count || "—"}</td>
+                  <td className={cx(td, "hidden text-p-muted md:table-cell")}>
+                    {s.status === "rejected" ? <span className="text-p-bad">{s.adminNote ?? "Rejected"}</span> : s.reference ? <span className="font-mono text-xs">{s.reference}</span> : "—"}
+                  </td>
                   <td className={cx(td, "hidden text-p-muted sm:table-cell")}>{s.bank}</td>
-                  <td className={cx(td, "hidden text-right font-mono text-xs text-p-muted lg:table-cell")}>{s.id}</td>
+                  <td className={cx(td, "hidden text-right font-mono text-xs text-p-muted lg:table-cell")}>
+                    <span className="inline-flex items-center gap-2">
+                      {s.id}
+                      {s.status === "scheduled" && (
+                        <Button size="sm" variant="ghost" aria-label={tr("Cancel withdrawal")} title={tr("Cancel withdrawal")} onClick={() => setCancel(s.id)}>
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -351,6 +414,69 @@ export function Settlements() {
         </div>
       </Card>
 
+
+      <Modal
+        open={withdrawOpen}
+        onClose={() => setWithdrawOpen(false)}
+        title={tr("Withdraw")}
+        footer={
+          <>
+            <Button onClick={() => setWithdrawOpen(false)}>{tr("Cancel")}</Button>
+            <Button variant="primary" disabled={busy || !chosen || !amt || !!amountError} onClick={() => void requestWithdrawal()}>
+              {tr("Request")} {amt ? money(amt, "TZS") : ""}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="rounded-xl bg-p-panel2 p-4">
+            <p className="text-xs text-p-muted">{tr("Available to withdraw")}</p>
+            <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">{money(available, "TZS")}</p>
+          </div>
+          <Field label={tr("Amount (TZS)")} hint={amountError || `Minimum ${money(WITHDRAW_MIN, "TZS")}. No fee.`}>
+            <div className="flex gap-2">
+              <Input autoFocus inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d,]/g, ""))} placeholder="50,000" className={amountError ? "border-p-bad" : ""} />
+              <Button type="button" onClick={() => setAmount(String(Math.max(0, Math.floor(available))))}>{tr("Max")}</Button>
+            </div>
+          </Field>
+          {(accounts.data?.data.length ?? 0) > 0 ? (
+            <Field label={tr("Send to")}>
+              <Select value={chosen} onChange={(e) => setAcctId(e.target.value)}>
+                {accounts.data!.data.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.label} {a.details.masked}{a.details.holderName ? ` · ${a.details.holderName}` : ""}{a.isDefault ? " (default)" : ""}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ) : (
+            <div className="rounded-xl border border-dashed border-p-line p-4 text-sm text-p-muted">
+              {tr("Add a bank or mobile money account to withdraw to.")}
+              <Link href="/portal/settings?tab=accounts" className="mt-2 flex items-center gap-1 font-medium text-p-fg">
+                <Plus className="h-3.5 w-3.5" /> {tr("Add payout account")}
+              </Link>
+            </div>
+          )}
+          <Field label={tr("Note (optional)")}>
+            <Input value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} placeholder={tr("e.g. November payout")} />
+          </Field>
+          <p className="text-xs text-p-faint">{tr("The amount is held from your balance straight away. Our team sends it within one working day and adds the transfer reference here.")}</p>
+        </div>
+      </Modal>
+
+      <Modal
+        open={!!cancel}
+        onClose={() => setCancel(null)}
+        title={tr("Cancel this withdrawal?")}
+        footer={
+          <>
+            <Button onClick={() => setCancel(null)}>{tr("Keep it")}</Button>
+            <Button variant="danger" disabled={busy} onClick={() => cancel && void cancelWithdrawal(cancel)}>{tr("Cancel withdrawal")}</Button>
+          </>
+        }
+      >
+        <p className="text-sm text-p-muted">{tr("The money goes back into your available balance.")}</p>
+      </Modal>
     </>
   );
 }

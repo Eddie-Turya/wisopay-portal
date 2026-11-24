@@ -64,6 +64,9 @@ async function wiso<T = any>(method: string, path: string, body?: unknown, form?
   return json as T
 }
 
+// WisoPay withdrawal status -> the settlement statuses the ZawaPay views understand
+const WD_STATUS: Record<string, string> = { PENDING: 'PENDING_APPROVAL', APPROVED: 'APPROVED', PAID: 'SENT', REJECTED: 'REJECTED', CANCELLED: 'CANCELLED' }
+
 const soon = (what: string) => new ApiError(501, 'NOT_AVAILABLE', `${what} isn’t available on WisoPay yet.`)
 
 /* ---------- Shape mapping ---------- */
@@ -224,13 +227,21 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
     case 'balances': {
       if (env !== 'live') return R({ data: [{ currency: 'TZS', available: '0', reserved: '0' }] })
       // A failing balance call shouldn't take the whole portal down
-      const s = await wiso('GET', '/settlements').catch(() => ({ payableBalance: 0 }))
-      return R({ data: [{ currency: 'TZS', available: String(s.payableBalance ?? 0), reserved: '0' }] })
+      const s = await wiso('GET', '/settlements').catch(() => ({ payableBalance: 0, heldForWithdrawals: 0 }))
+      return R({ data: [{ currency: 'TZS', available: String(Math.max(0, s.payableBalance ?? 0)), reserved: String(s.heldForWithdrawals ?? 0) }] })
     }
 
     case 'settlements': {
       const s = env === 'live' ? await wiso('GET', '/settlements').catch(() => ({ recentPayouts: [] })) : { recentPayouts: [] }
-      return R({ data: (s.recentPayouts ?? []).map((x: any) => ({ id: x.id, currency: x.currency ?? 'TZS', amount: String(x.amount ?? x.amount_minor ?? 0), destination: x.destination ?? '—', status: x.status ?? 'SENT', createdAt: x.createdAt ?? x.created_at })) })
+      // Withdrawals, in the shape the ZawaPay settlements view reads
+      return R({
+        data: (s.recentPayouts ?? []).map((x: any) => ({
+          id: x.id, currency: x.currency ?? 'TZS', amount: String(x.amount ?? 0),
+          destination: x.destination ? `${x.destination.label} ${x.destination.account}` : '—',
+          status: WD_STATUS[x.status] ?? x.status, createdAt: x.createdAt,
+          reference: x.reference ?? null, note: x.note ?? null, adminNote: x.adminNote ?? null,
+        })),
+      })
     }
 
     case 'notifications':
@@ -246,9 +257,23 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
       return R({ ok: true })
     }
 
-    case 'payout-accounts':
-      if (method === 'GET') return R({ data: [] })
-      throw soon('Adding payout accounts here')
+    case 'payout-accounts': {
+      if (!id && method === 'GET') {
+        const r = await wiso('GET', '/payout-accounts')
+        return R({ data: (r.data ?? []).map((a: any) => ({ id: a.id, kind: a.kind, label: a.label, isDefault: a.isDefault, details: { masked: a.accountNumber, holderName: a.holderName } })) })
+      }
+      if (!id) return R(await wiso('POST', '/payout-accounts', { kind: b.kind, label: b.label, account_number: b.accountNumber, holder_name: b.holderName }))
+      if (sub === 'default') return R(await wiso('POST', `/payout-accounts/${id}/default`, {}))
+      if (method === 'DELETE') return R(await wiso('DELETE', `/payout-accounts/${id}`))
+      throw soon('This payout account action')
+    }
+
+    case 'withdrawals': {
+      if (!id && method === 'GET') return R(await wiso('GET', '/withdrawals'))
+      if (!id) return R(await wiso('POST', '/withdrawals', { amount_minor: b.amount, payout_account_id: b.payoutAccountId, note: b.note }))
+      if (sub === 'cancel') return R(await wiso('POST', `/withdrawals/${id}/cancel`, {}))
+      throw soon('This withdrawal action')
+    }
 
     case 'payouts':
       throw soon('Sending payouts')

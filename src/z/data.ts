@@ -22,7 +22,7 @@ export type Payment = {
 };
 
 export type PayoutStatus = "paid" | "processing" | "failed";
-export type Settlement = { id: string; date: number; amount: number; currency: string; count: number; bank: string; status: "paid" | "in_transit" | "scheduled" | "failed" };
+export type Settlement = { id: string; date: number; amount: number; currency: string; count: number; bank: string; status: "paid" | "in_transit" | "scheduled" | "failed" | "rejected" | "cancelled"; reference?: string | null; note?: string | null; adminNote?: string | null };
 export type Payout = {
   id: string;
   recipient: string;

@@ -37,7 +37,7 @@ export type Note = { id: string; title: string; body: string; time: string; unre
 
 const payStatus = (s: string): PayStatus => (s === "SUCCESS" ? "succeeded" : ["REFUNDED", "PARTIALLY_REFUNDED", "REVERSED"].includes(s) ? "refunded" : ["FAILED", "EXPIRED", "CANCELLED"].includes(s) ? "failed" : "pending");
 const payoutStatus = (s: string): PayoutStatus => (s === "SUCCESS" ? "paid" : ["FAILED", "EXPIRED", "CANCELLED", "REVERSED"].includes(s) ? "failed" : "processing");
-const settlementStatus = (s: string): Settlement["status"] => (s === "SENT" ? "paid" : s === "APPROVED" ? "in_transit" : s === "PENDING_APPROVAL" ? "scheduled" : ("failed" as Settlement["status"]));
+const settlementStatus = (s: string): Settlement["status"] => (s === "SENT" ? "paid" : s === "APPROVED" ? "in_transit" : s === "PENDING_APPROVAL" ? "scheduled" : s === "REJECTED" ? "rejected" : s === "CANCELLED" ? "cancelled" : "failed");
 
 /** Same naming as the coverage data: plain names in Tanzania, "Name · CC" elsewhere, "· CD USD" for USD rails. */
 export function networkLabel(n: ApiNetwork | undefined, code?: string) {
@@ -153,7 +153,7 @@ async function allTx(type: "DEPOSIT" | "PAYOUT", env: "sandbox" | "live") {
 export function LiveProvider({ wantLive, children }: { wantLive: boolean; children: ReactNode }) {
   const [env, setEnv] = useState<"sandbox" | "live">("sandbox");
   const [state, setState] = useState<Omit<Live, "reload" | "env" | "netByCode">>({ now: 0, ready: false, error: null, me: null, kyc: null, networks: [], payments: [], payouts: [], balances: [], settlements: [], notifications: [] });
-  const [raw, setRaw] = useState<{ deposits: ApiTx[]; payouts: ApiTx[]; balances: { currency: string; available: string; reserved: string }[]; settlements: { id: string; currency: string; amount: string; destination: string; status: string; createdAt: string }[] }>({ deposits: [], payouts: [], balances: [], settlements: [] });
+  const [raw, setRaw] = useState<{ deposits: ApiTx[]; payouts: ApiTx[]; balances: { currency: string; available: string; reserved: string }[]; settlements: { id: string; currency: string; amount: string; destination: string; status: string; createdAt: string; reference?: string | null; note?: string | null; adminNote?: string | null }[] }>({ deposits: [], payouts: [], balances: [], settlements: [] });
 
   const load = useCallback(async () => {
     try {
@@ -166,7 +166,7 @@ export function LiveProvider({ wantLive, children }: { wantLive: boolean; childr
         allTx("DEPOSIT", env),
         allTx("PAYOUT", env),
         api<{ data: { currency: string; available: string; reserved: string }[] }>("/dashboard/balances", { env }),
-        canMoney ? api<{ data: { id: string; currency: string; amount: string; destination: string; status: string; createdAt: string }[] }>("/dashboard/settlements", { env }) : Promise.resolve({ data: [] }),
+        canMoney ? api<{ data: { id: string; currency: string; amount: string; destination: string; status: string; createdAt: string; reference?: string | null; note?: string | null; adminNote?: string | null }[] }>("/dashboard/settlements", { env }) : Promise.resolve({ data: [] }),
         api<{ data: { id: string; title: string; body: string; read: boolean; createdAt: string }[] }>("/dashboard/notifications", { env }),
         api<Kyc>("/dashboard/kyc", { env }),
       ]);
@@ -203,7 +203,7 @@ export function LiveProvider({ wantLive, children }: { wantLive: boolean; childr
       payments: raw.deposits.map((t) => toPayment(t, netByCode)),
       payouts: raw.payouts.map((t) => toPayout(t, netByCode)),
       balances: balanceRows(raw.balances, state.me?.merchant.country ?? "TZ"),
-      settlements: raw.settlements.map((s) => ({ id: s.id, date: Date.parse(s.createdAt), amount: Number(s.amount), currency: s.currency, count: 0, bank: s.destination, status: settlementStatus(s.status) })),
+      settlements: raw.settlements.map((s) => ({ id: s.id, date: Date.parse(s.createdAt), amount: Number(s.amount), currency: s.currency, count: 0, bank: s.destination, status: settlementStatus(s.status), reference: s.reference ?? null, note: s.note ?? null, adminNote: s.adminNote ?? null })),
       reload: load,
     };
   }, [state, raw, env, load]);

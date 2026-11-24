@@ -131,7 +131,7 @@ export function Onboarding() {
               state={settlementDone ? "done" : "todo"}
               title={tr("Add a settlement account")}
               body={settlementDone ? `${accounts.data!.data[0].label} added` : "Where we’ll send your money once you’re live"}
-              action={!settlementDone && <Button size="sm" disabled title={tr("Coming soon — WisoPay settles to the account you registered with")}>{tr("Add account")}</Button>}
+              action={!settlementDone && <Button size="sm" onClick={() => setSettleOpen(true)}>{tr("Add account")}</Button>}
             />
             <Step
               state={acct.testDone ? "done" : "todo"}
