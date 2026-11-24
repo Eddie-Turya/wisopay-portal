@@ -223,12 +223,13 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
 
     case 'balances': {
       if (env !== 'live') return R({ data: [{ currency: 'TZS', available: '0', reserved: '0' }] })
-      const s = await wiso('GET', '/settlements')
+      // A failing balance call shouldn't take the whole portal down
+      const s = await wiso('GET', '/settlements').catch(() => ({ payableBalance: 0 }))
       return R({ data: [{ currency: 'TZS', available: String(s.payableBalance ?? 0), reserved: '0' }] })
     }
 
     case 'settlements': {
-      const s = env === 'live' ? await wiso('GET', '/settlements') : { recentPayouts: [] }
+      const s = env === 'live' ? await wiso('GET', '/settlements').catch(() => ({ recentPayouts: [] })) : { recentPayouts: [] }
       return R({ data: (s.recentPayouts ?? []).map((x: any) => ({ id: x.id, currency: x.currency ?? 'TZS', amount: String(x.amount ?? x.amount_minor ?? 0), destination: x.destination ?? '—', status: x.status ?? 'SENT', createdAt: x.createdAt ?? x.created_at })) })
     }
 
