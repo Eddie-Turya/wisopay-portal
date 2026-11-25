@@ -78,7 +78,15 @@ const TX_STATUS: Record<string, string> = {
 }
 
 // Tanzanian prefixes -> network display name (same names as the coverage data)
-export function networkOf(phone?: string | null): string {
+/** Stored numbers as 255XXXXXXXXX. Older rows may still have 0XXXXXXXXX; both are shown the same way. */
+export function tzPhoneDigits(raw?: string | null): string {
+  const d = String(raw ?? '').replace(/\D/g, '')
+  if (d.startsWith('0') && d.length === 10) return `255${d.slice(1)}`
+  if (d.length === 9) return `255${d}`
+  return d
+}
+
+function networkOf(phone?: string | null): string {
   const d = String(phone ?? '').replace(/\D/g, '')
   const local = d.startsWith('255') ? d.slice(3) : d.startsWith('0') ? d.slice(1) : d
   const p = local.slice(0, 2)
@@ -91,7 +99,7 @@ export function networkOf(phone?: string | null): string {
 }
 
 function toTx(p: any, env: 'sandbox' | 'live') {
-  const phone = String(p.payerPhone ?? p.payer_phone ?? '').replace(/\D/g, '')
+  const phone = tzPhoneDigits(p.payerPhone ?? p.payer_phone)
   return {
     id: p.id,
     object: 'deposit' as const,
