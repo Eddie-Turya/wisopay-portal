@@ -59,7 +59,7 @@ async function wiso<T = any>(method: string, path: string, body?: unknown, form?
   if (!r.ok) {
     const msg = typeof json?.error === 'string' ? json.error : json?.error?.message ?? `Request failed (${r.status})`
     if (r.status === 401 && path !== '/auth/login' && path !== '/auth/2fa/verify') setSession(null)
-    throw new ApiError(r.status, 'HTTP', msg)
+    throw new ApiError(r.status, 'HTTP', msg, json)
   }
   return json as T
 }
@@ -108,6 +108,36 @@ function toTx(p: any, env: 'sandbox' | 'live') {
     failure: null,
     createdAt: p.createdAt,
     completedAt: p.updatedAt ?? null,
+  }
+}
+
+/** A WisoPay payout as the ZawaPay payout list expects it. */
+const toPayoutTx = (env: 'sandbox' | 'live') => (p: any) => {
+  const phone = String(p.recipient?.phone_number ?? '').replace(/\D/g, '')
+  const account = String(p.recipient?.account_number ?? '')
+  const ST: Record<string, string> = { COMPLETED: 'SUCCESS', PROCESSING: 'PROCESSING', PENDING: 'PROCESSING', FAILED: 'FAILED', REVERSED: 'REVERSED' }
+  return {
+    id: p.id,
+    object: 'payout' as const,
+    environment: env,
+    status: ST[p.status] ?? p.status,
+    amount: String(p.amount_minor ?? 0),
+    fee: String(p.fee_minor ?? 0),
+    currency: p.currency || 'TZS',
+    network: p.channel === 'bank' ? (p.recipient?.bank_code ?? 'Bank') : networkOf(phone) || 'Mobile money',
+    country: 'TZ',
+    phoneNumber: p.channel === 'bank' ? '' : phone,
+    merchantReference: p.reference ?? null,
+    metadata: {
+      recipient: p.recipient?.name ?? '',
+      note: p.narration ?? '',
+      destination: p.channel === 'bank' ? `${p.recipient?.bank_code ?? 'Bank'} · ••••${account.slice(-4)}` : `+${phone}`,
+      ...(p.provider_reference ? { providerReference: p.provider_reference } : {}),
+      ...(p.source ? { source: p.source } : {}),
+    } as Record<string, string>,
+    failure: p.failure_reason ? { code: 'payout_failed', message: p.failure_reason } : null,
+    createdAt: p.created_at,
+    completedAt: p.completed_at ?? null,
   }
 }
 
@@ -210,7 +240,10 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
 
     case 'transactions': {
       if (!id) {
-        if (q.get('type') === 'PAYOUT') return R({ data: [], total: 0 })
+        if (q.get('type') === 'PAYOUT') {
+          const r = await wiso('GET', `/payouts?envType=${env}`)
+          return R({ data: (r.data ?? []).map(toPayoutTx(env)), total: (r.data ?? []).length })
+        }
         const limit = Number(q.get('limit') ?? 100)
         const page = Number(q.get('page') ?? 1)
         const r = await wiso('GET', `/payments?limit=${limit}&offset=${(page - 1) * limit}&envType=${env}`)
@@ -267,7 +300,7 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
         const r = await wiso('GET', '/payout-accounts')
         return R({ data: (r.data ?? []).map((a: any) => ({ id: a.id, kind: a.kind, label: a.label, isDefault: a.isDefault, details: { masked: a.accountNumber, holderName: a.holderName } })) })
       }
-      if (!id) return R(await wiso('POST', '/payout-accounts', { kind: b.kind, label: b.label, account_number: b.accountNumber, holder_name: b.holderName }))
+      if (!id) return R(await wiso('POST', '/payout-accounts', { kind: b.kind, label: b.label, bank_code: b.kind === 'BANK' ? b.bankCode : undefined, account_number: b.accountNumber, holder_name: b.holderName }))
       if (sub === 'default') return R(await wiso('POST', `/payout-accounts/${id}/default`, {}))
       if (method === 'DELETE') return R(await wiso('DELETE', `/payout-accounts/${id}`))
       throw soon('This payout account action')
@@ -288,8 +321,18 @@ export async function api<T = unknown>(path: string, o: Opts = {}): Promise<T> {
       throw soon('This withdrawal action')
     }
 
-    case 'payouts':
-      throw soon('Sending payouts')
+    case 'payouts': {
+      if (id === 'options') return R(await wiso('GET', '/payouts/options'))
+      if (id === 'bulk') return R(await wiso('POST', '/payouts/bulk', { envType: env, rows: b.rows }))
+      if (!id && method === 'POST') {
+        return R(await wiso('POST', '/payouts', {
+          envType: env, channel: b.channel ?? 'mobile', amount_minor: Number(b.amount),
+          phone_number: b.phoneNumber, bank_code: b.bankCode, account_number: b.accountNumber,
+          recipient_name: b.recipientName ?? b.metadata?.recipient, narration: b.narration ?? b.metadata?.note, idempotency_key: b.idempotencyKey,
+        }))
+      }
+      throw soon('This payout action')
+    }
 
     case 'test-payment':
       throw soon('Sending a test payment from here')

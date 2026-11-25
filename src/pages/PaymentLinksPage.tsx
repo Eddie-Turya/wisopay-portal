@@ -91,6 +91,7 @@ function LinkCard({ link, copied, onCopy, onDelete }: any) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <p className="text-sm font-bold text-p-fg">{`TZS ${Number(link.amount_minor).toLocaleString()}`}</p>
+            {link.test_mode && <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-600">Test link · no real money</span>}
             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${link.link_status === 'active' ? 'bg-p-good/10 text-p-good' : 'bg-p-panel2 text-p-muted'}`}>
               {link.link_status.toUpperCase()}
             </span>

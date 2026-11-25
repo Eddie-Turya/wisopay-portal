@@ -640,6 +640,12 @@ export function CollectPage() {
           <p className="text-sm text-p-faint mt-1">Choose how you want to request money from a customer</p>
         </div>
 
+        {mode === 'sandbox' && (
+          <div className="mb-6 rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-sm text-p-ink2">
+            <strong className="text-p-fg">Test mode is on.</strong> Nothing here is real: no prompt reaches the customer's phone, card pages are simulated, payment links are test links, and no money moves. Switch Test mode off (bottom left) to collect real payments.
+          </div>
+        )}
+
         {/* Method selector */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {METHODS.map(m => {

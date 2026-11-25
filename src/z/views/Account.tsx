@@ -8,6 +8,7 @@ import { api, ApiError } from "../api";
 import { useApi, useLive } from "../live";
 import { Avatar, Button, Card, CopyText, Drawer, Field, Input, Modal, PageHeader, Segmented, Select, Status, Toggle, cx, td, th, trHover, useToast } from "../ui";
 import { usePortal } from "../Shell";
+import { BANKS, bankName } from "../banks";
 
 /* ================= Developers ================= */
 
@@ -394,7 +395,7 @@ export function SettingsView() {
   const [inv, setInv] = useState({ email: "", role: "ADMIN" });
   const [inviteLink, setInviteLink] = useState("");
   const [addAcct, setAddAcct] = useState(false);
-  const [acct, setAcct] = useState({ kind: "BANK", label: "", accountNumber: "", holderName: "" });
+  const [acct, setAcct] = useState({ kind: "BANK", label: "", bankCode: "", accountNumber: "", holderName: "" });
   const [mfa, setMfa] = useState<{ secret: string; uri: string; qr?: string } | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -702,12 +703,12 @@ export function SettingsView() {
             <Button onClick={() => setAddAcct(false)}>{tr("Cancel")}</Button>
             <Button
               variant="primary"
-              disabled={busy || acct.accountNumber.replace(/\D/g, "").length < 6 || acct.holderName.trim().length < 2}
+              disabled={busy || acct.accountNumber.replace(/\D/g, "").length < 6 || acct.holderName.trim().length < 2 || (acct.kind === "BANK" && !acct.bankCode)}
               onClick={() =>
                 void run(async () => {
-                  await api("/dashboard/payout-accounts", { body: { ...acct, label: acct.label.trim() || (acct.kind === "BANK" ? "Bank account" : "Mobile money") } });
+                  await api("/dashboard/payout-accounts", { body: { ...acct, label: acct.kind === "BANK" ? bankName(acct.bankCode) : acct.label.trim() || "Mobile money" } });
                   setAddAcct(false);
-                  setAcct({ kind: "BANK", label: "", accountNumber: "", holderName: "" });
+                  setAcct({ kind: "BANK", label: "", bankCode: "", accountNumber: "", holderName: "" });
                   toast(tr("Payout account added"));
                   accounts.reload();
                 }, "Couldn’t add the account")
@@ -725,9 +726,21 @@ export function SettingsView() {
               <option value="MOBILE_MONEY">{tr("Mobile money")}</option>
             </Select>
           </Field>
-          <Field label={tr("Bank or wallet name")}>
-            <Input value={acct.label} onChange={(e) => setAcct({ ...acct, label: e.target.value })} placeholder={acct.kind === "BANK" ? "CRDB Bank" : "M-Pesa"} />
-          </Field>
+          {acct.kind === "BANK" ? (
+            <Field label={tr("Bank")}>
+              <Select value={acct.bankCode} onChange={(e) => setAcct({ ...acct, bankCode: e.target.value })}>
+                <option value="">{tr("Choose your bank")}</option>
+                {BANKS.map((b) => <option key={b.code} value={b.code}>{b.name}</option>)}
+              </Select>
+            </Field>
+          ) : (
+            <Field label={tr("Network")}>
+              <Select value={acct.label} onChange={(e) => setAcct({ ...acct, label: e.target.value })}>
+                <option value="">{tr("Choose the network")}</option>
+                {["M-Pesa", "Airtel Money", "Mixx by Yas", "HaloPesa"].map((n) => <option key={n} value={n}>{n}</option>)}
+              </Select>
+            </Field>
+          )}
           <Field label={acct.kind === "BANK" ? "Account number" : "Wallet phone number"}>
             <Input inputMode="numeric" value={acct.accountNumber} onChange={(e) => setAcct({ ...acct, accountNumber: e.target.value })} />
           </Field>
