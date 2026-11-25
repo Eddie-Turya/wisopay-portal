@@ -48,7 +48,7 @@ export const NETWORKS: Net[] = MARKETS.flatMap((m) =>
     method: "mobile_money" as Method,
   })),
 );
-export const NETWORK_COLOR: Record<string, string> = Object.fromEntries(NETWORKS.map((n) => [n.name, PROVIDERS[n.provider].color]));
+export const NETWORK_COLOR: Record<string, string> = { ...Object.fromEntries(NETWORKS.map((n) => [n.name, PROVIDERS[n.provider].color])), Card: "#334155" };
 
 /* ---------------- Helpers ---------------- */
 

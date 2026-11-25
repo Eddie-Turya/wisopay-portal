@@ -141,6 +141,9 @@ export const api = {
   collectSelcomPesa: (body: { phone: string; amount_minor: number; currency?: string; description?: string; envType?: 'live' | 'sandbox' }) =>
     req<any>('POST', '/collect/selcom-pesa', body),
   collectStatus: (paymentId: string) => req<any>('GET', `/collect/status/${paymentId}`),
+  collectOptions: () => req<{ card: boolean; cardRatePercent: number | null }>('GET', '/collect/options'),
+  collectCard: (body: { amount_minor: number; name: string; email: string; phone: string; description?: string; send_sms?: boolean; envType?: 'live' | 'sandbox' }) =>
+    req<any>('POST', '/collect/card', body),
   createPaymentLink: (body: { amount_minor: number; currency?: string; description?: string; expires_in_hours?: number; envType?: 'live' | 'sandbox' }) =>
     req<any>('POST', '/collect/link', body),
 

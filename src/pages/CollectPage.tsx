@@ -4,7 +4,7 @@ import { api } from '../api'
 import { useEnv } from '../context/EnvContext'
 import {
   Smartphone, Link2, CheckCircle2, XCircle, Loader2,
-  Copy, Check, Clock, BookUser, Wallet, ArrowRight, Zap,
+  Copy, Check, Clock, BookUser, Wallet, ArrowRight, Zap, CreditCard, ExternalLink,
 } from 'lucide-react'
 
 type Contact = { id: string; name: string; phone: string }
@@ -393,9 +393,167 @@ function LinkForm({ mode }: { mode: 'live' | 'sandbox' }) {
   )
 }
 
+// ── Card form ────────────────────────────────────────────────────────────────
+
+type CardState = 'idle' | 'loading' | 'ready' | 'success' | 'failed'
+
+function CardForm({ mode }: { mode: 'live' | 'sandbox' }) {
+  const [available, setAvailable] = useState<boolean | null>(null)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [amount, setAmount] = useState('')
+  const [desc, setDesc] = useState('')
+  const [sendSms, setSendSms] = useState(true)
+  const [state, setState] = useState<CardState>('idle')
+  const [error, setError] = useState('')
+  const [result, setResult] = useState<{ payment_id: string; checkout_url: string; sms_sent: boolean; amount_minor: number } | null>(null)
+  const [copied, setCopied] = useState(false)
+  const poll = useRef<ReturnType<typeof setInterval> | null>(null)
+  const accent = ACCENTS.card
+
+  useEffect(() => {
+    api.collectOptions().then(o => setAvailable(o.card)).catch(() => setAvailable(false))
+    return () => { if (poll.current) clearInterval(poll.current) }
+  }, [])
+
+  const stop = () => { if (poll.current) { clearInterval(poll.current); poll.current = null } }
+  const reset = () => { stop(); setState('idle'); setError(''); setResult(null); setCopied(false) }
+
+  const start = async () => {
+    const amountMinor = parseInt(amount)
+    if (!amountMinor || amountMinor < 200) { setError('Minimum amount is TZS 200'); return }
+    if (name.trim().length < 2) { setError("Enter the customer's name"); return }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setError("Enter the customer's email (the bank sends the receipt there)"); return }
+    if (phone.replace(/\D/g, '').length < 9) { setError("Enter the customer's phone number"); return }
+    setError(''); setState('loading')
+    try {
+      const r = await api.collectCard({ amount_minor: amountMinor, name: name.trim(), email: email.trim(), phone: phone.trim(), description: desc.trim() || undefined, send_sms: sendSms, envType: mode })
+      setResult(r)
+      setState('ready')
+      stop()
+      poll.current = setInterval(async () => {
+        try {
+          const s = await api.collectStatus(r.payment_id)
+          if (s.status === 'COMPLETED') { stop(); setState('success') }
+          else if (['FAILED', 'CANCELLED', 'TIMEOUT'].includes(s.status)) { stop(); setState('failed'); setError('The card payment did not go through.') }
+        } catch { /* keep polling */ }
+      }, 4000)
+    } catch (e: any) {
+      setState('idle')
+      setError(e?.message || 'Could not start the card payment')
+    }
+  }
+
+  if (available === null) {
+    return <div className="flex justify-center py-10"><Loader2 size={22} className="animate-spin text-p-faint" /></div>
+  }
+  if (!available) {
+    return (
+      <div className="flex flex-col items-center text-center py-8 gap-3">
+        <div className="w-14 h-14 rounded-full bg-p-panel2 flex items-center justify-center"><CreditCard size={24} className="text-p-faint" /></div>
+        <p className="text-base font-bold text-p-fg">Card payments are coming soon</p>
+        <p className="text-sm text-p-faint max-w-sm">WisoPay is switching card payments on. Until then, collect with USSD Push or a payment link.</p>
+      </div>
+    )
+  }
+
+  if (state === 'success' && result) {
+    return (
+      <div className="flex flex-col items-center text-center py-10 gap-5">
+        <div className="w-20 h-20 rounded-full bg-p-good/10 flex items-center justify-center"><CheckCircle2 size={38} className="text-p-good" /></div>
+        <div className="space-y-1">
+          <p className="text-3xl font-bold text-p-fg tabular-nums tracking-tight">{formatTZS(result.amount_minor)}</p>
+          <p className="text-sm text-p-faint">Paid by card · <span className="font-semibold text-p-ink2">{name}</span></p>
+        </div>
+        <button onClick={() => { reset(); setName(''); setEmail(''); setPhone(''); setAmount(''); setDesc('') }} className="flex items-center gap-2 text-sm font-semibold text-p-muted hover:text-p-fg transition-colors group">
+          New collection <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+        </button>
+      </div>
+    )
+  }
+
+  if (state === 'failed') {
+    return (
+      <div className="flex flex-col items-center text-center py-10 gap-5">
+        <div className="w-20 h-20 rounded-full bg-p-bad/10 flex items-center justify-center"><XCircle size={34} className="text-red-400" /></div>
+        <div className="space-y-1">
+          <p className="text-base font-bold text-p-fg">Payment not completed</p>
+          {error && <p className="text-sm text-p-bad max-w-xs">{error}</p>}
+        </div>
+        <button onClick={reset} className={`px-7 py-3 text-sm font-bold text-white rounded-xl transition-all shadow-sm bg-gradient-to-r ${accent.btn}`}>Try again</button>
+      </div>
+    )
+  }
+
+  if (state === 'ready' && result) {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center gap-3">
+          <Loader2 size={18} className="animate-spin text-p-faint flex-shrink-0" />
+          <div>
+            <p className="text-sm font-bold text-p-fg">Waiting for {name} to pay {formatTZS(result.amount_minor)}</p>
+            <p className="text-xs text-p-faint">{result.sms_sent ? `We texted the card link to ${phone}. ` : ''}This page updates when the payment is done.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 bg-p-panel2 rounded-xl px-3.5 py-3 border border-p-line">
+          <span className="flex-1 truncate font-mono text-xs text-p-ink2">{result.checkout_url}</span>
+          <button
+            onClick={() => { void navigator.clipboard.writeText(result.checkout_url); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
+            className="flex items-center gap-1.5 text-xs font-semibold text-p-muted hover:text-p-fg px-2 py-1 rounded-lg"
+          >
+            {copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy</>}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a href={result.checkout_url} target="_blank" rel="noreferrer" className={`flex items-center justify-center gap-2 py-3 text-sm font-bold text-white rounded-xl bg-gradient-to-r ${accent.gradient}`}>
+            <ExternalLink size={15} /> Open card page
+          </a>
+          <button onClick={reset} className="py-3 text-sm font-semibold text-p-muted rounded-xl border border-p-line hover:bg-p-panel2">Cancel</button>
+        </div>
+        <p className="text-xs text-p-faint">Customer with you? Open the card page on this device and hand it to them. Card details go only to Selcom.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-5">
+      {error && <div className="text-sm text-p-bad bg-p-bad/10 border border-p-bad/25 rounded-xl px-4 py-3">{error}</div>}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2 sm:col-span-1">
+          <Field label="Customer name"><input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Asha Mushi" autoComplete="off" className={inputCls(accent.ring)} /></Field>
+        </div>
+        <div className="col-span-2 sm:col-span-1">
+          <Field label="Amount" hint="TZS"><input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="10,000" min="200" className={inputCls(accent.ring)} /></Field>
+        </div>
+        <div className="col-span-2 sm:col-span-1">
+          <Field label="Customer email"><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="asha@example.com" autoComplete="off" className={inputCls(accent.ring)} /></Field>
+        </div>
+        <div className="col-span-2 sm:col-span-1">
+          <Field label="Customer phone"><input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="0712 345 678" className={inputCls(accent.ring)} /></Field>
+        </div>
+      </div>
+      <Field label="Description" hint="optional">
+        <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Invoice #001, Order 1043…" className={inputCls(accent.ring)} />
+      </Field>
+      <label className="flex items-center gap-2.5 text-sm text-p-ink2 cursor-pointer select-none">
+        <input type="checkbox" checked={sendSms} onChange={e => setSendSms(e.target.checked)} className="h-4 w-4 accent-emerald-600" />
+        Text the card link to the customer
+      </label>
+      <button
+        onClick={start}
+        disabled={state === 'loading'}
+        className={`w-full flex items-center justify-center gap-2.5 py-3.5 text-sm font-bold text-white rounded-xl disabled:opacity-50 transition-all shadow-sm hover:shadow-md active:scale-[0.99] bg-gradient-to-r ${accent.gradient}`}
+      >
+        {state === 'loading' ? <><Loader2 size={16} className="animate-spin" /> Creating…</> : <><CreditCard size={15} /> Create card payment</>}
+      </button>
+    </div>
+  )
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-type Method = 'ussd' | 'pesa' | 'link'
+type Method = 'ussd' | 'pesa' | 'card' | 'link'
 
 const METHODS: { id: Method; label: string; sublabel: string; icon: React.ReactNode; gradient: string; desc: string }[] = [
   {
@@ -413,6 +571,14 @@ const METHODS: { id: Method; label: string; sublabel: string; icon: React.ReactN
     icon: <Wallet size={18} />,
     gradient: 'from-violet-600 to-purple-700',
     desc: 'Trigger a push notification inside the Selcom Pesa app — no USSD, faster approval experience.',
+  },
+  {
+    id: 'card',
+    label: 'Card',
+    sublabel: 'Visa, Mastercard',
+    icon: <CreditCard size={18} />,
+    gradient: 'from-slate-700 to-slate-900',
+    desc: 'Get a secure Selcom card page for the customer: open it here if they\'re with you, or text them the link.',
   },
   {
     id: 'link',
@@ -438,6 +604,13 @@ const ACCENTS: Record<Method, AccentSet> = {
     pulseBg: 'bg-violet-50',
     spinnerText: 'text-violet-600',
     gradient: 'from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800',
+  },
+  card: {
+    ring: 'focus:ring-slate-500/20 focus:border-slate-400',
+    btn: 'from-slate-700 to-slate-900',
+    pulseBg: 'bg-p-panel2',
+    spinnerText: 'text-p-ink2',
+    gradient: 'from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black',
   },
   link: {
     ring: 'focus:ring-blue-500/20 focus:border-blue-400',
@@ -468,7 +641,7 @@ export function CollectPage() {
         </div>
 
         {/* Method selector */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {METHODS.map(m => {
             const isActive = method === m.id
             return (
@@ -527,6 +700,9 @@ export function CollectPage() {
             {method === 'pesa' && (
               <PushForm hook={pesaHook} accent={ACCENTS.pesa} listId="contacts-pesa" buttonLabel="Send Pesa Push" pushType="pesa" />
             )}
+            {method === 'card' && (
+              <CardForm mode={mode} />
+            )}
             {method === 'link' && (
               <LinkForm mode={mode} />
             )}
@@ -537,6 +713,7 @@ export function CollectPage() {
         <p className="text-xs text-p-faint mt-4 text-center">
           {method === 'ussd' && 'Works with M-Pesa, Tigo Pesa, Airtel Money, Halopesa and more'}
           {method === 'pesa' && 'Customer must have the Selcom Pesa app installed and logged in'}
+          {method === 'card' && 'Card details are entered on Selcom\'s secure page, never in WisoPay'}
           {method === 'link' && 'Links expire after the selected duration — generate a new one if needed'}
         </p>
       </div>

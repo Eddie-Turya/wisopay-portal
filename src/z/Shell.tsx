@@ -63,7 +63,7 @@ const NAV = [
   {
     group: "Get paid",
     items: [
-      { href: "/portal/collect", label: tr("Collect (USSD push)"), icon: Smartphone },
+      { href: "/portal/collect", label: tr("Collect (USSD, card)"), icon: Smartphone },
       { href: "/portal/payment-links", label: tr("Payment links"), icon: Link2 },
       { href: "/portal/invoices", label: tr("Invoices"), icon: FileText },
       { href: "/portal/bill-splits", label: tr("Bill splits"), icon: Split },

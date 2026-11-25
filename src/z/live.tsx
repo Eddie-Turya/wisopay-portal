@@ -56,7 +56,7 @@ export function toPayment(t: ApiTx, nets: Map<string, ApiNetwork>): Payment & { 
     email: t.metadata?.customerEmail ?? "",
     network: networkLabel(nets.get(t.network ?? ""), t.network),
     country: t.country ?? "",
-    method: "mobile_money",
+    method: t.network === "Card" ? "card" : "mobile_money",
     currency: t.currency,
     amount: Number(t.amount),
     fee: Number(t.fee),
