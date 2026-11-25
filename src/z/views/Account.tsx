@@ -444,7 +444,7 @@ export function SettingsView() {
               <Input value={me.user.email} disabled type="email" />
             </Field>
             <Field label={tr("Merchant ID")}>
-              <Input value={me.merchant.id} disabled />
+              <Input value={(me.merchant as { shortId?: string | null }).shortId ?? me.merchant.id} disabled />
             </Field>
             <Field label={tr("Who pays the fee")} hint={tr("Applies to new payments.")}>
               <FeeBearer />

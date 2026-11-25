@@ -131,6 +131,7 @@ async function me() {
       liveEnabled: st === 'live_enabled',
       createdAt: m.merchant?.created_at,
       slug: m.merchant?.slug,
+      shortId: m.merchant?.short_id ?? null,
     },
   }
 }
