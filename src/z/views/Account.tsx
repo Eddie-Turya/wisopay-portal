@@ -2,7 +2,7 @@ import { tr } from "../i18n";
 
 import { useState } from "react";
 import Link, { useRouter, useSearchParams } from "../next";
-import { BookOpen, KeyRound, Lock, Landmark, Laptop, Plus, RefreshCw, ShieldCheck, Smartphone, Trash2, Webhook } from "lucide-react";
+import { BookOpen, Code2, KeyRound, Lock, Landmark, Laptop, Plus, RefreshCw, ShieldCheck, Smartphone, Trash2, Webhook } from "lucide-react";
 import { date } from "../data";
 import { api, ApiError } from "../api";
 import { useApi, useLive } from "../live";
@@ -21,7 +21,8 @@ export function Developers() {
   const toast = useToast();
   const { testMode, verified } = usePortal();
   const { env } = useLive();
-  const [tab, setTab] = useState<"keys" | "webhooks" | "logs">("keys");
+  const startTab = useSearchParams().get("tab");
+  const [tab, setTab] = useState<"keys" | "webhooks" | "logs">(startTab === "webhooks" || startTab === "logs" ? startTab : "keys");
   const keys = useApi<{ data: ApiKey[] }>("/dashboard/api-keys");
   const hooksQ = useApi<{ data: Hook[] }>("/dashboard/webhooks", env);
   const deliveries = useApi<{ data: { status: string; url: string }[] }>(tab === "webhooks" ? "/dashboard/webhooks/deliveries?limit=100" : null, env);
@@ -63,11 +64,18 @@ export function Developers() {
         title={tr("Developers")}
         sub={tr("Keys, webhooks and request logs for your integration.")}
         actions={
-          <Link href="/portal/playground">
-            <Button>
-              <BookOpen className="h-4 w-4" /> {tr("Playground")}
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/portal/docs">
+              <Button>
+                <BookOpen className="h-4 w-4" /> {tr("API docs")}
+              </Button>
+            </Link>
+            <Link href="/portal/playground">
+              <Button>
+                <Code2 className="h-4 w-4" /> {tr("Playground")}
+              </Button>
+            </Link>
+          </div>
         }
       />
       <div className="mb-5">

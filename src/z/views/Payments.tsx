@@ -56,7 +56,7 @@ export function Payments() {
       await api(`/dashboard/transactions/${p.id}/refund`, { body: {}, env: live.env, idempotent: true });
       setRefund(null);
       setOpen(null);
-      toast(`Refund of ${money(p.amount, p.currency)} to ${p.customer} is processing`);
+      toast(`Refund of ${money(p.amount, p.currency)} recorded. WisoPay sends it to ${p.customer} within 1 working day`);
       void live.reload();
     } catch (e) {
       toast(e instanceof ApiError ? e.message : "Refund failed", "bad");

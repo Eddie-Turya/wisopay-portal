@@ -32,6 +32,7 @@ import {
   PartyPopper,
   Smartphone,
   Split,
+  BookOpen,
 } from "lucide-react";
 import { useEnv } from "../context/EnvContext";
 import { useTheme } from "../context/ThemeContext";
@@ -73,6 +74,7 @@ const NAV = [
     group: "Account",
     items: [
       { href: "/portal/developers", label: tr("Developers"), icon: Code2 },
+      { href: "/portal/docs", label: tr("API docs"), icon: BookOpen },
       { href: "/portal/settings", label: tr("Settings"), icon: Settings },
     ],
   },
@@ -382,6 +384,7 @@ const ACTIONS = [
   { label: tr("Test in the playground"), href: "/portal/playground", icon: Code2 },
   { label: tr("Get help"), href: "/portal/support", icon: HelpCircle },
   { label: tr("View API keys"), href: "/portal/developers", icon: Code2 },
+  { label: tr("Read the API docs"), href: "/portal/docs", icon: BookOpen },
   { label: tr("Invite a team member"), href: "/portal/settings?tab=team", icon: Users },
 ];
 
