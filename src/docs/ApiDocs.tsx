@@ -270,6 +270,97 @@ https://your-shop.example/orders/1043?payment_id=TXN-T4K3AB-2C8E&status=COMPLETE
 # status is COMPLETED, FAILED, CANCELLED or TIMEOUT.
 # Always confirm with GET /v1/payments/{id} before fulfilling.`,
   },
+  payout: {
+    curl: `curl ${BASE}/v1/payouts \\
+  -X POST \\
+  -H "Authorization: Bearer dpay_test_YOUR_KEY" \\
+  -H "Content-Type: application/json" \\
+  -H "Idempotency-Key: salary-nov-emp-001" \\
+  -d '{
+    "amount_minor": 150000,
+    "channel": "mobile",
+    "phone_number": "0712345678",
+    "recipient_name": "Juma Mollel",
+    "reference": "salary-nov-emp-001",
+    "narration": "November salary"
+  }'`,
+    node: `const res = await fetch("${BASE}/v1/payouts", {
+  method: "POST",
+  headers: {
+    Authorization: \`Bearer \${process.env.WISOPAY_KEY}\`,
+    "Content-Type": "application/json",
+    "Idempotency-Key": "salary-nov-emp-001",
+  },
+  body: JSON.stringify({
+    amount_minor: 150000,
+    channel: "bank",
+    bank_code: "CRDB",
+    account_number: "0150123456789",
+    recipient_name: "Asha Supplies Ltd",
+    reference: "INV-1043",
+  }),
+});
+const payout = await res.json();`,
+    python: `payout = requests.post(
+    "${BASE}/v1/payouts",
+    headers={
+        "Authorization": f"Bearer {os.environ['WISOPAY_KEY']}",
+        "Idempotency-Key": "salary-nov-emp-001",
+    },
+    json={
+        "amount_minor": 150000,
+        "channel": "mobile",
+        "phone_number": "0712345678",
+        "recipient_name": "Juma Mollel",
+        "reference": "salary-nov-emp-001",
+    },
+).json()`,
+  },
+  payoutObject: {
+    json: `{
+  "id": "po_3f9a1c7e2b8d4e6f9a1c7e",
+  "object": "payout",
+  "status": "PROCESSING",
+  "amount_minor": 150000,
+  "fee_minor": 2000,
+  "currency": "TZS",
+  "channel": "mobile",
+  "recipient": { "name": "Juma Mollel", "phone_number": "255712345678" },
+  "reference": "salary-nov-emp-001",
+  "narration": "November salary",
+  "provider_reference": null,
+  "failure_reason": null,
+  "livemode": true,
+  "created_at": "2026-11-25T09:30:00.000Z",
+  "completed_at": null
+}`,
+  },
+  payoutList: {
+    curl: `curl "${BASE}/v1/payouts?status=FAILED&limit=50" \\
+  -H "Authorization: Bearer dpay_test_YOUR_KEY"
+
+curl ${BASE}/v1/payouts/po_3f9a1c7e2b8d4e6f9a1c7e \\
+  -H "Authorization: Bearer dpay_test_YOUR_KEY"`,
+  },
+  payoutBanks: {
+    curl: `curl ${BASE}/v1/payouts/banks -H "Authorization: Bearer dpay_test_YOUR_KEY"
+curl ${BASE}/v1/payouts/fee   -H "Authorization: Bearer dpay_live_YOUR_KEY"`,
+  },
+  payoutBanksResponse: {
+    json: `// GET /v1/payouts/banks
+{ "object": "list", "data": [ { "code": "CRDB", "name": "CRDB Bank" }, { "code": "NMB", "name": "NMB Bank" }, ... ] }
+
+// GET /v1/payouts/fee (live key)
+{ "fee_minor": 2000, "currency": "TZS", "livemode": true, "enabled": true,
+  "per_payout_max_minor": 5000000, "daily_max_minor": 20000000 }`,
+  },
+  payoutWebhook: {
+    json: `{
+  "event": "payout.completed",          // or payout.failed, payout.reversed
+  "data": { "id": "po_3f9a…", "object": "payout", "status": "COMPLETED", ... },
+  "timestamp": "2026-11-25T09:30:41.120Z"
+}`,
+  },
   payment: {
     json: `{
   "id": "TXN-T4K2QX-9B7D",
@@ -504,6 +595,16 @@ const NAV: { group: string; items: { id: string; label: string }[] }[] = [
     ],
   },
   {
+    group: 'Payouts',
+    items: [
+      { id: 'payouts', label: 'Sending payouts' },
+      { id: 'payout-object', label: 'The payout object' },
+      { id: 'create-payout', label: 'Send a payout' },
+      { id: 'list-payouts', label: 'List and retrieve' },
+      { id: 'payout-banks', label: 'Banks, fee and limits' },
+    ],
+  },
+  {
     group: 'Webhooks',
     items: [
       { id: 'webhooks', label: 'Receiving events' },
@@ -610,7 +711,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
         <Section
           id="introduction"
           title="WisoPay API"
-          aside={<Code title="Base URL" sample={{ text: `${BASE}\n\n# Endpoints\nPOST /v1/payments\nGET  /v1/payments/{id}\nGET  /v1/payments\nPOST /v1/payments/{id}/refunds\nGET  /v1/payments/{id}/refunds` }} />}
+          aside={<Code title="Base URL" sample={{ text: `${BASE}\n\n# Endpoints\nPOST /v1/payments\nGET  /v1/payments/{id}\nGET  /v1/payments\nPOST /v1/payments/{id}/refunds\nGET  /v1/payments/{id}/refunds\nPOST /v1/payouts\nGET  /v1/payouts\nGET  /v1/payouts/{id}\nGET  /v1/payouts/banks\nGET  /v1/payouts/fee` }} />}
         >
           <p className="wd-lead">Collect mobile money and card payments in Tanzania from your website, app or back office. You send the customer’s phone number and an amount; WisoPay pushes a payment prompt to their phone (or sends them to a secure card page) and tells you when they’ve paid.</p>
           <p>The API is REST over HTTPS with JSON request and response bodies. Amounts are whole numbers in the currency’s smallest unit (<C>amount_minor</C>); for Tanzanian shillings that is simply shillings, so <C>25000</C> is TZS 25,000.</p>
@@ -672,7 +773,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
               <tr><td>502/503</td><td><C>provider_error</C></td><td>The mobile money network didn’t respond. Retry shortly.</td></tr>
             </tbody>
           </table>
-          <p>Specific <C>code</C> values you may want to handle: <C>missing_idempotency_key</C>, <C>invalid_content_type</C>, <C>payment_not_refundable</C>, <C>payment_already_refunded</C>, <C>amount_too_large</C>, <C>insufficient_balance</C>, <C>card_payments_unavailable</C>.</p>
+          <p>Specific <C>code</C> values you may want to handle: <C>missing_idempotency_key</C>, <C>invalid_content_type</C>, <C>payment_not_refundable</C>, <C>payment_already_refunded</C>, <C>amount_too_large</C>, <C>insufficient_balance</C>, <C>card_payments_unavailable</C>, and for payouts <C>amount_over_limit</C>, <C>daily_limit_reached</C>, <C>payouts_not_enabled</C>.</p>
         </Section>
 
         <Section id="pagination" title="Pagination" aside={<Code title="List response" sample={S.listResponse} />}>
@@ -797,9 +898,73 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
           <p>All refunds on one payment, oldest first, as a list (<C>{'{ object: "list", data, has_more }'}</C>).</p>
         </Section>
 
+        <Section id="payouts" title="Sending payouts">
+          <p>Send money from your WisoPay balance to any mobile wallet (M-Pesa, Airtel Money, Mixx by Yas, HaloPesa) or Tanzanian bank account: salaries, supplier payments, customer cash-outs, agent commissions.</p>
+          <ul>
+            <li>Each payout takes the amount <strong>plus WisoPay’s payout fee</strong> from your available balance straight away. If it fails or is reversed, both come back to your balance.</li>
+            <li>Most mobile payouts arrive within a minute; bank transfers can take longer. You get a <C>payout.completed</C> or <C>payout.failed</C> webhook.</li>
+            <li>Live payouts are for verified businesses: WisoPay switches them on for your account and sets your per-payout and daily limits. Ask <a href="mailto:support@wisopay.io">support@wisopay.io</a>.</li>
+            <li>In the <strong>sandbox</strong>, payouts complete straight away with no fee and no money moving. Use a phone or account number ending in <C>0000</C> to test a failure.</li>
+            <li>You can also send payouts from the portal, one at a time or as a CSV file of up to 500.</li>
+          </ul>
+          <Note kind="warn">Anyone holding your live API key can send your money. Keep keys on your server only, and use a different <C>Idempotency-Key</C> for every payout you mean to make.</Note>
+        </Section>
+
+        <Section id="payout-object" title="The payout object" aside={<Code title="Payout" sample={S.payoutObject} />}>
+          <Fields
+            title="Attributes"
+            fields={[
+              { name: 'id', type: 'string', desc: <>Unique ID, e.g. <C>po_3f9a…</C>.</> },
+              { name: 'status', type: 'string', desc: <><C>PENDING</C> (queued), <C>PROCESSING</C> (with the network or bank), <C>COMPLETED</C>, <C>FAILED</C> or <C>REVERSED</C> (returned after completing).</> },
+              { name: 'amount_minor', type: 'integer', desc: 'What the recipient gets.' },
+              { name: 'fee_minor', type: 'integer', desc: 'WisoPay’s fee, also taken from your balance.' },
+              { name: 'channel', type: 'string', desc: <><C>mobile</C> or <C>bank</C>.</> },
+              { name: 'recipient', type: 'object', desc: <><C>name</C>, and <C>phone_number</C> or <C>bank_code</C> + <C>account_number</C>.</> },
+              { name: 'reference', type: 'string | null', desc: 'Your own reference, as you sent it.' },
+              { name: 'provider_reference', type: 'string | null', desc: 'The network’s or bank’s transaction reference once sent: give it to the recipient if they ask.' },
+              { name: 'failure_reason', type: 'string | null', desc: 'Why it failed or was reversed.' },
+              { name: 'livemode', type: 'boolean', desc: <><C>false</C> for sandbox payouts.</> },
+            ]}
+          />
+        </Section>
+
+        <Section id="create-payout" title="Send a payout" aside={<><Code sample={S.payout} /><Code title="Response · 201" sample={S.payoutObject} /></>}>
+          <Endpoint method="POST" path="/v1/payouts" />
+          <p>Returns <C>201</C> with the payout, usually <C>PROCESSING</C>. Sending again with the same <C>Idempotency-Key</C> returns the same payout (<C>200</C>), so a retry never pays twice.</p>
+          <Fields
+            title="Body"
+            fields={[
+              { name: 'amount_minor', type: 'integer', required: true, desc: <>Amount in shillings, at least <C>500</C>.</> },
+              { name: 'channel', type: 'string', required: true, desc: <><C>mobile</C> or <C>bank</C>.</> },
+              { name: 'phone_number', type: 'string', desc: <>Mobile: the wallet number, e.g. <C>0712345678</C>.</> },
+              { name: 'bank_code', type: 'string', desc: <>Bank: a code from <a href="#payout-banks" onClick={(e) => { e.preventDefault(); go('payout-banks') }}>/v1/payouts/banks</a>, e.g. <C>CRDB</C>, <C>NMB</C>.</> },
+              { name: 'account_number', type: 'string', desc: 'Bank: the account number.' },
+              { name: 'recipient_name', type: 'string', required: true, desc: 'Full name or company name of the recipient.' },
+              { name: 'reference', type: 'string', desc: 'Your reference (up to 120 characters).' },
+              { name: 'narration', type: 'string', desc: 'Reason shown to the network or bank (up to 140).' },
+              { name: 'currency', type: 'string', desc: <><C>TZS</C> (default).</> },
+            ]}
+          />
+          <p>Errors to handle: <C>insufficient_balance</C>, <C>amount_over_limit</C>, <C>daily_limit_reached</C>, <C>payouts_not_enabled</C>, <C>payouts_unavailable</C>, and <C>validation_error</C> with <C>param</C> naming the field.</p>
+        </Section>
+
+        <Section id="list-payouts" title="List and retrieve" aside={<Code sample={S.payoutList} />}>
+          <Endpoint method="GET" path="/v1/payouts" />
+          <p>Your payouts in the key’s environment, newest first. Filter with <C>status</C> or <C>reference</C>; page with <C>limit</C> and <C>offset</C> (see <a href="#pagination" onClick={(e) => { e.preventDefault(); go('pagination') }}>Pagination</a>).</p>
+          <Endpoint method="GET" path="/v1/payouts/{id}" />
+          <p>One payout. Use it to confirm the final status if you missed a webhook.</p>
+        </Section>
+
+        <Section id="payout-banks" title="Banks, fee and limits" aside={<><Code sample={S.payoutBanks} /><Code title="Responses" sample={S.payoutBanksResponse} /></>}>
+          <Endpoint method="GET" path="/v1/payouts/banks" />
+          <p>The banks you can pay to, with the <C>bank_code</C> to send. Includes CRDB, NMB, NBC, ABSA, Equity, Stanbic, Exim, DTB and 30 more.</p>
+          <Endpoint method="GET" path="/v1/payouts/fee" />
+          <p>Your fee per payout and your limits. With a sandbox key the fee is <C>0</C>.</p>
+        </Section>
+
         <Section id="webhooks" title="Receiving events" aside={<Code title="What we send" sample={S.webhookPayload} />}>
           <p>Add your endpoint in the portal under <a href={webhooksHref}>Developers → Webhooks</a>. It must be HTTPS. You get a signing secret (<C>whsec_…</C>) once, when you add it.</p>
-          <p>We currently send one event, <C>payment.completed</C>, when a payment succeeds. Failed payments and refunds don’t send webhooks yet: check them with <a href="#retrieve-payment" onClick={(e) => { e.preventDefault(); go('retrieve-payment') }}>Retrieve a payment</a>.</p>
+          <p>We send <C>payment.completed</C> when a payment succeeds, and <C>payout.completed</C>, <C>payout.failed</C> and <C>payout.reversed</C> for your payouts (the payout object is in <C>data</C>). Failed payments and refunds don’t send webhooks yet: check them with <a href="#retrieve-payment" onClick={(e) => { e.preventDefault(); go('retrieve-payment') }}>Retrieve a payment</a>.</p>
           <ul>
             <li>Reply with any <C>2xx</C> within 10 seconds. Do slow work after replying.</li>
             <li>If we don’t get a <C>2xx</C>, we try again, up to 5 attempts in all over about a minute, then stop. So don’t rely on the webhook alone (see <a href="#confirm" onClick={(e) => { e.preventDefault(); go('confirm') }}>Confirm before you fulfil</a>).</li>
@@ -827,6 +992,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
             <dt>25 November 2026</dt>
             <dd>
               <ul>
+                <li>Payouts API: send money from your balance to mobile wallets and bank accounts (<C>/v1/payouts</C>), with <C>payout.*</C> webhooks, sandbox testing and bulk payouts in the portal.</li>
                 <li>Card payments: <C>"payment_method": "card"</C> returns a <C>checkoutUrl</C> for Selcom’s secure card page; optional <C>redirect_url</C>. Payments now show <C>paymentMethod</C>.</li>
                 <li>Sandbox payments complete again (some were left in <C>CREATED</C>).</li>
                 <li>Refunds API: <C>POST</C> and <C>GET /v1/payments/{'{id}'}/refunds</C>, with partial refunds. (The older path <C>/v1/refunds/payments/{'{id}'}/refunds</C> still works.)</li>
