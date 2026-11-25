@@ -4,6 +4,11 @@ import { api } from "../api";
 
 type Msg = { id: string; role: "merchant" | "assistant" | "staff"; author: string | null; content: string; at: string };
 
+/** Turns **bold** into bold text (the assistant writes Markdown); everything else stays as typed. */
+function Rich({ text }: { text: string }) {
+  return <>{text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => (part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <strong key={i}>{part.slice(2, -2)}</strong> : <span key={i}>{part}</span>))}</>;
+}
+
 /** Floating help chat for merchants: the WisoPay assistant answers; staff replies show here too. */
 export function SupportChat() {
   const [open, setOpen] = useState(false);
@@ -93,7 +98,7 @@ export function SupportChat() {
                 <div className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2 text-sm ${m.role === "merchant" ? "bg-p-accent text-p-accent-ink" : m.role === "staff" ? "border border-p-good/40 bg-p-good/10 text-p-fg" : "bg-p-panel2 text-p-fg"}`}>
                   {m.role === "staff" && <p className="mb-0.5 flex items-center gap-1 text-[11px] font-semibold text-p-good"><UserRound className="h-3 w-3" /> {m.author ?? "WisoPay support"}</p>}
                   {m.role === "assistant" && <p className="mb-0.5 flex items-center gap-1 text-[11px] font-semibold text-p-muted"><Sparkles className="h-3 w-3" /> Assistant</p>}
-                  {m.content}
+                  <Rich text={m.content} />
                 </div>
               </div>
             ))}
