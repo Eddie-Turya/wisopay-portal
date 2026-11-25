@@ -29,6 +29,7 @@ import { Customers } from './z/views/GetPaid'
 import { Developers, SettingsView } from './z/views/Account'
 import { Statements } from './z/views/Statements'
 import { Docs } from './z/views/Docs'
+import { DisputesPage } from './z/views/DisputesPage'
 
 function Signed() {
   return <Shell><Outlet /></Shell>
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="/customers" element={<Customers />} />
           <Route path="/developers" element={<Developers />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/disputes" element={<DisputesPage />} />
           <Route path="/settings" element={<SettingsView />} />
           {/* Older WisoPay pages, still reachable from search (⌘K) and links */}
           <Route path="/api-keys" element={<APIKeysPage />} />

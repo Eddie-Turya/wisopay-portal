@@ -150,6 +150,9 @@ export const api = {
     req<any>('POST', '/collect/selcom-pesa', body),
   collectStatus: (paymentId: string) => req<any>('GET', `/collect/status/${paymentId}`),
   supportChat: (body: { conversation_id?: string | null; message: string }) => req<any>('POST', '/support/chat', body),
+  disputes: () => req<{ data: any[] }>('GET', '/disputes'),
+  dispute: (id: string) => req<any>('GET', `/disputes/${encodeURIComponent(id)}`),
+  disputeRespond: (id: string, message: string) => req<any>('POST', `/disputes/${encodeURIComponent(id)}/respond`, { message }),
   supportHistory: (conversationId?: string | null) => req<any>('GET', `/support/chat${conversationId ? `?conversation_id=${encodeURIComponent(conversationId)}` : ''}`),
   collectOptions: () => req<{ card: boolean; cardRatePercent: number | null }>('GET', '/collect/options'),
   collectCard: (body: { amount_minor: number; name: string; email: string; phone: string; description?: string; send_sms?: boolean; envType?: 'live' | 'sandbox' }) =>
