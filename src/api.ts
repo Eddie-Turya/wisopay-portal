@@ -22,6 +22,13 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
   return data
 }
 
+// Website visitor id (?wv=… from wisopay.io links, only for visitors who accepted cookies there):
+// kept for this tab and sent with a sign-up so the visit can be linked to the new account.
+try {
+  const wv = new URLSearchParams(location.search).get('wv')
+  if (wv && /^[a-z0-9]{8,40}$/i.test(wv)) sessionStorage.setItem('wp_wv', wv)
+} catch { /* storage unavailable */ }
+
 export const api = {
   isLoggedIn: () => !!getToken(),
   logout: clearToken,
@@ -35,6 +42,7 @@ export const api = {
     form.append('nida_number', fields.nida_number)
     if (fields.name) form.append('name', fields.name)
     form.append('tin_document', fields.tin_document)
+    try { const wv = sessionStorage.getItem('wp_wv'); if (wv) form.append('visitor_id', wv) } catch { /* storage unavailable */ }
     const token = localStorage.getItem('portalToken')
     return fetch(`${BASE}/auth/register`, {
       method: 'POST',
