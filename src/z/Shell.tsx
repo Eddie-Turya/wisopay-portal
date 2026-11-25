@@ -40,6 +40,7 @@ import { useIdleTimeout } from "../hooks/useIdleTimeout";
 import { useAccount, useHydrated } from "./account";
 import { ToastProvider, cx, Toggle, Button } from "./ui";
 import { api, getSession, setSession } from "./api";
+import { SupportChat } from "./SupportChat";
 import { LiveProvider, useLive } from "./live";
 
 const NAV = [
@@ -291,6 +292,7 @@ function ShellInner({ children }: { children: ReactNode }) {
                 </>
               )}
             </motion.main>
+            <SupportChat />
           </div>
 
           <CommandPalette open={palette} onClose={() => setPalette(false)} />

@@ -149,6 +149,8 @@ export const api = {
   collectSelcomPesa: (body: { phone: string; amount_minor: number; currency?: string; description?: string; envType?: 'live' | 'sandbox' }) =>
     req<any>('POST', '/collect/selcom-pesa', body),
   collectStatus: (paymentId: string) => req<any>('GET', `/collect/status/${paymentId}`),
+  supportChat: (body: { conversation_id?: string | null; message: string }) => req<any>('POST', '/support/chat', body),
+  supportHistory: (conversationId?: string | null) => req<any>('GET', `/support/chat${conversationId ? `?conversation_id=${encodeURIComponent(conversationId)}` : ''}`),
   collectOptions: () => req<{ card: boolean; cardRatePercent: number | null }>('GET', '/collect/options'),
   collectCard: (body: { amount_minor: number; name: string; email: string; phone: string; description?: string; send_sms?: boolean; envType?: 'live' | 'sandbox' }) =>
     req<any>('POST', '/collect/card', body),
