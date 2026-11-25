@@ -196,11 +196,86 @@ res = requests.post(
 payment = res.json()
 res.raise_for_status()`,
   },
+  card: {
+    curl: `curl ${BASE}/v1/payments \\
+  -X POST \\
+  -H "Authorization: Bearer dpay_test_YOUR_KEY" \\
+  -H "Content-Type: application/json" \\
+  -H "Idempotency-Key: order-1043" \\
+  -d '{
+    "amount_minor": 25000,
+    "currency": "TZS",
+    "merchant_reference": "order-1043",
+    "payment_method": "card",
+    "phone_number": "0712345678",
+    "payer": { "name": "Asha Mushi", "email": "asha@example.com" },
+    "redirect_url": "https://your-shop.example/orders/1043"
+  }'`,
+    node: `const res = await fetch("${BASE}/v1/payments", {
+  method: "POST",
+  headers: {
+    Authorization: \`Bearer \${process.env.WISOPAY_KEY}\`,
+    "Content-Type": "application/json",
+    "Idempotency-Key": "order-1043",
+  },
+  body: JSON.stringify({
+    amount_minor: 25000,
+    currency: "TZS",
+    merchant_reference: "order-1043",
+    payment_method: "card",
+    phone_number: "0712345678",
+    payer: { name: "Asha Mushi", email: "asha@example.com" },
+    redirect_url: "https://your-shop.example/orders/1043",
+  }),
+});
+const payment = await res.json();
+// Send the customer to Selcom's secure card page
+return Response.redirect(payment.checkoutUrl, 303);`,
+    python: `res = requests.post(
+    "${BASE}/v1/payments",
+    headers={
+        "Authorization": f"Bearer {os.environ['WISOPAY_KEY']}",
+        "Idempotency-Key": "order-1043",
+    },
+    json={
+        "amount_minor": 25000,
+        "currency": "TZS",
+        "merchant_reference": "order-1043",
+        "payment_method": "card",
+        "phone_number": "0712345678",
+        "payer": {"name": "Asha Mushi", "email": "asha@example.com"},
+        "redirect_url": "https://your-shop.example/orders/1043",
+    },
+)
+payment = res.json()
+# Send the customer to payment["checkoutUrl"]`,
+  },
+  cardResponse: {
+    json: `{
+  "id": "TXN-T4K3AB-2C8E",
+  "object": "payment",
+  "status": "PROCESSING",
+  "paymentMethod": "card",
+  "checkoutUrl": "https://tza.selcom.online/…",
+  "amountMinor": 25000,
+  "currency": "TZS",
+  "merchantReference": "order-1043",
+  ...
+}`,
+  },
+  cardReturn: {
+    text: `# After paying, the customer lands on your redirect_url with:
+https://your-shop.example/orders/1043?payment_id=TXN-T4K3AB-2C8E&status=COMPLETED
+
+# status is COMPLETED, FAILED, CANCELLED or TIMEOUT.
+# Always confirm with GET /v1/payments/{id} before fulfilling.`,
+  },
   payment: {
     json: `{
   "id": "TXN-T4K2QX-9B7D",
   "object": "payment",
   "status": "PROCESSING",
+  "paymentMethod": "mobile_money",
   "amountMinor": 25000,
   "currency": "TZS",
   "merchantReference": "order-1042",
@@ -415,6 +490,7 @@ const NAV: { group: string; items: { id: string; label: string }[] }[] = [
     items: [
       { id: 'payment-object', label: 'The payment object' },
       { id: 'create-payment', label: 'Create a payment' },
+      { id: 'card-payments', label: 'Card payments' },
       { id: 'retrieve-payment', label: 'Retrieve a payment' },
       { id: 'list-payments', label: 'List payments' },
     ],
@@ -536,7 +612,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
           title="WisoPay API"
           aside={<Code title="Base URL" sample={{ text: `${BASE}\n\n# Endpoints\nPOST /v1/payments\nGET  /v1/payments/{id}\nGET  /v1/payments\nPOST /v1/payments/{id}/refunds\nGET  /v1/payments/{id}/refunds` }} />}
         >
-          <p className="wd-lead">Collect mobile money payments in Tanzania from your website, app or back office. You send the customer’s phone number and an amount; WisoPay pushes a payment prompt to their phone and tells you when they’ve paid.</p>
+          <p className="wd-lead">Collect mobile money and card payments in Tanzania from your website, app or back office. You send the customer’s phone number and an amount; WisoPay pushes a payment prompt to their phone (or sends them to a secure card page) and tells you when they’ve paid.</p>
           <p>The API is REST over HTTPS with JSON request and response bodies. Amounts are whole numbers in the currency’s smallest unit (<C>amount_minor</C>); for Tanzanian shillings that is simply shillings, so <C>25000</C> is TZS 25,000.</p>
           <p>Every response carries an <C>X-Request-Id</C> header. Include it when you contact support about a request.</p>
         </Section>
@@ -596,7 +672,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
               <tr><td>502/503</td><td><C>provider_error</C></td><td>The mobile money network didn’t respond. Retry shortly.</td></tr>
             </tbody>
           </table>
-          <p>Specific <C>code</C> values you may want to handle: <C>missing_idempotency_key</C>, <C>invalid_content_type</C>, <C>payment_not_refundable</C>, <C>payment_already_refunded</C>, <C>amount_too_large</C>, <C>insufficient_balance</C>.</p>
+          <p>Specific <C>code</C> values you may want to handle: <C>missing_idempotency_key</C>, <C>invalid_content_type</C>, <C>payment_not_refundable</C>, <C>payment_already_refunded</C>, <C>amount_too_large</C>, <C>insufficient_balance</C>, <C>card_payments_unavailable</C>.</p>
         </Section>
 
         <Section id="pagination" title="Pagination" aside={<Code title="List response" sample={S.listResponse} />}>
@@ -614,6 +690,8 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
               { name: 'id', type: 'string', desc: <>Unique ID, e.g. <C>TXN-T4K2QX-9B7D</C>.</> },
               { name: 'object', type: 'string', desc: <>Always <C>payment</C>.</> },
               { name: 'status', type: 'string', desc: <><C>CREATED</C>, <C>PROCESSING</C>, <C>COMPLETED</C>, <C>FAILED</C>, <C>TIMEOUT</C>, <C>CANCELLED</C> or <C>REFUNDED</C>. Only <C>COMPLETED</C> means you’ve been paid.</> },
+              { name: 'paymentMethod', type: 'string', desc: <><C>mobile_money</C> or <C>card</C>.</> },
+              { name: 'checkoutUrl', type: 'string | null', desc: <>Card payments only: Selcom’s secure card page to send the customer to.</> },
               { name: 'amountMinor', type: 'integer', desc: 'The amount you asked for.' },
               { name: 'currency', type: 'string', desc: <><C>TZS</C>.</> },
               { name: 'merchantReference', type: 'string', desc: 'Your reference, as you sent it.' },
@@ -640,12 +718,30 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
               { name: 'amount_minor', type: 'integer', required: true, desc: <>Amount in shillings. Minimum <C>200</C> for TZS.</> },
               { name: 'currency', type: 'string', required: true, desc: <><C>TZS</C>.</> },
               { name: 'merchant_reference', type: 'string', required: true, desc: 'Your order or invoice reference. It comes back on the payment and in the webhook.' },
-              { name: 'phone_number', type: 'string', required: true, desc: <>The customer’s mobile money number: <C>0712345678</C>, <C>712345678</C> or <C>255712345678</C>.</> },
-              { name: 'payer.name', type: 'string', desc: 'Shown in your portal and on receipts.' },
-              { name: 'payer.email', type: 'string', desc: 'If given, the customer also gets an email receipt.' },
+              { name: 'phone_number', type: 'string', required: true, desc: <>The customer’s mobile number: <C>0712345678</C>, <C>712345678</C> or <C>255712345678</C>.</> },
+              { name: 'payment_method', type: 'string', desc: <><C>mobile_money</C> (default: a payment prompt on the phone) or <C>card</C> (see <a href="#card-payments" onClick={(e) => { e.preventDefault(); go('card-payments') }}>Card payments</a>).</> },
+              { name: 'payer.name', type: 'string', desc: <>Shown in your portal and on receipts. Required for <C>card</C>.</> },
+              { name: 'payer.email', type: 'string', desc: <>If given, the customer also gets an email receipt. Required for <C>card</C>.</> },
+              { name: 'redirect_url', type: 'string', desc: <>Card only: where to send the customer after paying.</> },
             ]}
           />
           <Fields title="Headers" fields={[{ name: 'Idempotency-Key', type: 'string', required: true, desc: 'See Idempotency.' }, { name: 'Content-Type', type: 'string', required: true, desc: <><C>application/json</C></> }]} />
+        </Section>
+
+        <Section
+          id="card-payments"
+          title="Card payments"
+          aside={<><Code sample={S.card} /><Code title="Response · 201" sample={S.cardResponse} /><Code title="Back on your site" sample={S.cardReturn} /></>}
+        >
+          <p>Customers can pay with Visa or Mastercard on Selcom’s secure card page, which also handles the bank’s 3-D Secure check. Card details never touch your server or WisoPay.</p>
+          <ol className="wd-steps">
+            <li>Create the payment with <C>"payment_method": "card"</C>, the customer’s name, email and phone, and an optional <C>redirect_url</C>.</li>
+            <li>Send the customer to <C>checkoutUrl</C> from the response (a redirect, or a link they tap).</li>
+            <li>When they finish, they come back to your <C>redirect_url</C> with <C>payment_id</C> and <C>status</C> added. Without a <C>redirect_url</C>, WisoPay shows them a receipt page.</li>
+            <li>Confirm with <C>GET /v1/payments/{'{id}'}</C> (or the <C>payment.completed</C> webhook) before fulfilling. The query string alone isn’t proof of payment.</li>
+          </ol>
+          <p>Card payments have their own fee, shown on the payment as <C>feeMinor</C>. In the sandbox, card payments complete straight away and <C>checkoutUrl</C> points to the result page, so you can test the round trip.</p>
+          <p>If card payments aren’t enabled on WisoPay yet, you get <C>400 card_payments_unavailable</C>; use mobile money instead. Card payment is also offered on your payment links once it’s enabled.</p>
         </Section>
 
         <Section id="retrieve-payment" title="Retrieve a payment" aside={<Code sample={S.retrieve} />}>
@@ -731,6 +827,8 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
             <dt>25 November 2026</dt>
             <dd>
               <ul>
+                <li>Card payments: <C>"payment_method": "card"</C> returns a <C>checkoutUrl</C> for Selcom’s secure card page; optional <C>redirect_url</C>. Payments now show <C>paymentMethod</C>.</li>
+                <li>Sandbox payments complete again (some were left in <C>CREATED</C>).</li>
                 <li>Refunds API: <C>POST</C> and <C>GET /v1/payments/{'{id}'}/refunds</C>, with partial refunds. (The older path <C>/v1/refunds/payments/{'{id}'}/refunds</C> still works.)</li>
                 <li><C>GET /v1/payments</C> now lists payments in every status, newest first, and takes <C>status</C> and <C>merchant_reference</C> filters. Previously it only returned payments still in <C>CREATED</C>.</li>
                 <li><C>GET /v1/payments/{'{id}'}</C> returns <C>404</C> for payments outside your key’s environment, and a proper <C>404</C> instead of <C>500</C> for unknown IDs.</li>
