@@ -817,7 +817,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
             title="Body"
             fields={[
               { name: 'amount_minor', type: 'integer', required: true, desc: <>Amount in shillings. Minimum <C>200</C> for TZS.</> },
-              { name: 'currency', type: 'string', required: true, desc: <><C>TZS</C>.</> },
+              { name: 'currency', type: 'string', required: true, desc: <><C>TZS</C> is the only currency for now. Other currencies return <C>400 validation_error</C>.</> },
               { name: 'merchant_reference', type: 'string', required: true, desc: 'Your order or invoice reference. It comes back on the payment and in the webhook.' },
               { name: 'phone_number', type: 'string', required: true, desc: <>The customer’s mobile number: <C>0712345678</C>, <C>712345678</C> or <C>255712345678</C>.</> },
               { name: 'payment_method', type: 'string', desc: <><C>mobile_money</C> (default: a payment prompt on the phone) or <C>card</C> (see <a href="#card-payments" onClick={(e) => { e.preventDefault(); go('card-payments') }}>Card payments</a>).</> },
