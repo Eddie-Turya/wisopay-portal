@@ -824,6 +824,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
               { name: 'payer.name', type: 'string', desc: <>Shown in your portal and on receipts. Required for <C>card</C>.</> },
               { name: 'payer.email', type: 'string', desc: <>If given, the customer also gets an email receipt. Required for <C>card</C>.</> },
               { name: 'redirect_url', type: 'string', desc: <>Card only: where to send the customer after paying.</> },
+              { name: 'cancel_url', type: 'string', desc: <>Card only: where to send the customer if they cancel or the payment fails. Defaults to <C>redirect_url</C>.</> },
             ]}
           />
           <Fields title="Headers" fields={[{ name: 'Idempotency-Key', type: 'string', required: true, desc: 'See Idempotency.' }, { name: 'Content-Type', type: 'string', required: true, desc: <><C>application/json</C></> }]} />
@@ -839,6 +840,7 @@ export function ApiDocs({ keysHref = 'https://portal.wisopay.io/developers', web
             <li>Create the payment with <C>"payment_method": "card"</C>, the customer’s name, email and phone, and an optional <C>redirect_url</C>.</li>
             <li>Send the customer to <C>checkoutUrl</C> from the response (a redirect, or a link they tap).</li>
             <li>When they finish, they come back to your <C>redirect_url</C> with <C>payment_id</C> and <C>status</C> added. Without a <C>redirect_url</C>, WisoPay shows them a receipt page.</li>
+            <li>If they press Cancel on the card page (or the payment fails), they go to your <C>cancel_url</C> instead, with <C>payment_id</C> and <C>status=FAILED</C> added, and you get the <C>payment.failed</C> webhook.</li>
             <li>Confirm with <C>GET /v1/payments/{'{id}'}</C> (or the <C>payment.completed</C> webhook) before fulfilling. The query string alone isn’t proof of payment.</li>
           </ol>
           <p>Card payments have their own fee, shown on the payment as <C>feeMinor</C>. In the sandbox, card payments complete straight away and <C>checkoutUrl</C> points to the result page, so you can test the round trip.</p>
